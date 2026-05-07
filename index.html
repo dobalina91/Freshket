@@ -521,14 +521,17 @@ function render() {
   document.getElementById('sCostco').textContent = costcoCount;
   document.getElementById('sSams').textContent = samsCount;
 
+  if (activeFilter === 'live') {
+    renderLive(content);
+    return;
+  }
+
   if (filtered.length === 0) {
     content.innerHTML = '<div class="empty"><div class="empty-emoji">🥦</div><p>No items found.<br>Try a different search or filter.</p></div>';
     return;
   }
 
-  if (activeFilter === 'live') {
-    renderLive(content);
-  } else if (q.length > 0) {
+  if (q.length > 0) {
     renderComparison(filtered, q, content);
   } else {
     renderBrowse(filtered, content);
@@ -887,7 +890,7 @@ function addScannedItem(idx) {
 var opwData = null;
 var opwLoading = false;
 var liveSearchTerm = '';
-var OPW_URL = 'https://online-price-watch.consumer.org.hk/opw/opendata/pricewatch.json';
+var OPW_URL = 'https://opw-proxy.vercel.app/api/prices';
 
 var STORE_NAMES = {
   'WELLCOME': 'Wellcome',
