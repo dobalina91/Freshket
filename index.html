@@ -219,6 +219,7 @@ body{background:var(--cream);color:var(--text);font-family:'DM Sans',sans-serif;
 
 <!-- SCAN -->
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleScanImage(event)">
+<input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="handleScanImage(event)">
 <div class="modal-overlay" id="scanOverlay" onclick="handleScanOverlay(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -233,7 +234,8 @@ body{background:var(--cream);color:var(--text);font-family:'DM Sans',sans-serif;
     </div>
     <div class="modal-btns" style="margin-top:14px;">
       <button class="btn-cancel" onclick="closeScan()">Close</button>
-      <button class="btn-save" onclick="triggerCamera()">📷 Take Photo</button>
+      <button class="btn-save" style="flex:1;" onclick="triggerGallery()">🖼️ Gallery</button>
+      <button class="btn-save" style="flex:1;" onclick="triggerCamera()">📷 Camera</button>
     </div>
   </div>
 </div>
@@ -631,6 +633,7 @@ function openScan() {
 function closeScan() { document.getElementById('scanOverlay').classList.remove('open'); }
 function handleScanOverlay(e) { if (e.target===document.getElementById('scanOverlay')) closeScan(); }
 function triggerCamera() { document.getElementById('cameraInput').click(); }
+function triggerGallery() { document.getElementById('galleryInput').click(); }
 function handleScanImage(event) {
   var file=event.target.files[0]; if (!file) return;
   var reader=new FileReader();
@@ -642,13 +645,16 @@ function handleScanImage(event) {
     var st=document.getElementById('scanStatus');
     st.className='scan-status loading'; st.textContent='⏳ Analysing image…';
     var b64=full.split(',')[1], mime=file.type||'image/jpeg';
-    var prompt='Analyse this grocery price tag or receipt. Return ONLY a valid JSON array, no markdown. Each element: {"item":"name in English","qty":"e.g. 500g","price":numeric,"currency":"HKD or CNY","store":"store name or empty"}. Use CNY for Costco/Sams Club Shenzhen. Use HKD for HK supermarkets. Return [] if no items found.';
-    fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mime,data:b64}},{type:'text',text:prompt}]}]})})
+    fetch('https://opw-proxy-red.vercel.app/api/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mimeType:mime})})
     .then(function(r){return r.json();})
     .then(function(data) {
-      var txt=''; if (data.content) data.content.forEach(function(b){if(b.type==='text')txt+=b.text;});
       var parsed=[];
-      try { parsed=JSON.parse(txt.replace(/```json|```/g,'').trim()); } catch(err) { console.error(err); }
+      if (data.items && Array.isArray(data.items)) {
+        parsed = data.items;
+      } else if (data.content) {
+        var txt=''; data.content.forEach(function(b){if(b.type==='text')txt+=b.text;});
+        try { parsed=JSON.parse(txt.replace(/```json|```/g,'').trim()); } catch(err) { console.error(err); }
+      }
       if (!Array.isArray(parsed)||!parsed.length) { st.className='scan-status error'; st.textContent='❌ No items found. Try a clearer photo.'; return; }
       st.className='scan-status'; st.textContent='✅ Found '+parsed.length+' item'+(parsed.length>1?'s':'');
       scanResults=parsed;
