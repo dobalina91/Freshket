@@ -8,203 +8,174 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Freshket">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" type="image/png" href="icon.png">
-<title>Freshket — Grocery Price Tracker</title>
+<title>Freshket</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --cream: #f7f3ec; --cream2: #efe9de; --cream3: #e5ddd0;
-  --white: #ffffff; --text: #1a1510; --text-mid: #6b5f50; --text-dim: #a89880;
-  --green: #2d6a4f; --green-light: #d8f3dc; --green-mid: #52b788;
-  --orange: #e07b39; --orange-light: #fdf0e6;
-  --red: #c1440e; --red-light: #fdeae3;
-  --blue: #2c6e9b; --blue-light: #dff0fb;
-  --gold: #c8922a; --gold-light: #fef3dc;
-  --border: #ddd5c6;
-  --shadow: 0 2px 12px rgba(26,21,16,0.08);
-  --radius: 16px;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --cream:#f7f3ec;--cream2:#efe9de;--white:#ffffff;--text:#1a1510;--text-mid:#6b5f50;--text-dim:#a89880;
+  --green:#2d6a4f;--green-light:#d8f3dc;--green-mid:#52b788;
+  --orange:#e07b39;--orange-light:#fdf0e6;
+  --red:#c1440e;--red-light:#fdeae3;
+  --blue:#2c6e9b;--blue-light:#dff0fb;
+  --gold:#c8922a;--gold-light:#fef3dc;
+  --border:#ddd5c6;--shadow:0 2px 12px rgba(26,21,16,0.08);--radius:16px;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { background: var(--cream); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100dvh; overflow-x: hidden; }
-
-/* HEADER */
-.header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--white); border-bottom: 1.5px solid var(--border); padding: calc(var(--safe-top) + 10px) 16px 10px; box-shadow: 0 2px 16px rgba(26,21,16,0.06); }
-.header-inner { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
-.header-top { display: flex; align-items: center; gap: 8px; }
-.logo-wrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.logo-text { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; }
-.search-wrap { flex: 1; position: relative; }
-.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; font-size: 16px; }
-#search { width: 100%; background: var(--cream); border: 1.5px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 9px 12px 9px 34px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-#search:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(45,106,79,0.1); background: var(--white); }
-#search::placeholder { color: var(--text-dim); }
-.scan-btn { background: var(--orange-light); color: var(--orange); border: 1.5px solid #f0c8a8; border-radius: 12px; width: 38px; height: 38px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.15s; }
-.scan-btn:active { transform: scale(0.92); }
-.add-btn { background: var(--green); color: white; border: none; border-radius: 12px; width: 38px; height: 38px; font-size: 22px; font-weight: 400; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(45,106,79,0.3); transition: transform 0.15s; }
-.add-btn:active { transform: scale(0.92); }
-
-/* FILTER BAR */
-.filterbar { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-.filterbar::-webkit-scrollbar { display: none; }
-.filter-row { display: flex; gap: 6px; }
-.chip { background: var(--cream); border: 1.5px solid var(--border); border-radius: 20px; color: var(--text-mid); font-size: 12px; font-weight: 500; padding: 5px 13px; cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0; }
-.chip.active { background: var(--green); border-color: var(--green); color: white; }
-.chip:active { transform: scale(0.95); }
-
-/* CONTENT */
-.content { padding-top: calc(var(--safe-top) + 128px); padding-bottom: calc(var(--safe-bottom) + 80px); max-width: 600px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
-
-/* COMPARISON */
-.comparison-header { padding: 16px 0 8px; display: flex; align-items: baseline; gap: 8px; }
-.comparison-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; color: var(--text); }
-.comparison-subtitle { font-size: 12px; color: var(--text-dim); }
-.comparison-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 10px; box-shadow: var(--shadow); }
-.comp-row { display: flex; align-items: center; padding: 13px 14px; border-bottom: 1px solid var(--border); gap: 12px; transition: background 0.15s; cursor: pointer; position: relative; }
-.comp-row:last-child { border-bottom: none; }
-.comp-row:active { background: var(--cream); }
-.rank-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-.rank-1 { background: var(--gold-light); color: var(--gold); }
-.rank-2 { background: var(--cream2); color: var(--text-mid); }
-.rank-3 { background: var(--cream2); color: var(--text-mid); }
-.rank-other { background: var(--cream); color: var(--text-dim); font-size: 11px; }
-.comp-main { flex: 1; min-width: 0; }
-.comp-store { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.comp-qty { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-.comp-equiv { font-size: 10px; color: var(--green-mid); margin-top: 1px; }
-.comp-prices { text-align: right; flex-shrink: 0; }
-.comp-unit-price { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; color: var(--text); }
-.comp-unit-price.best { color: var(--green); }
-.comp-total-price { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
-.best-badge { position: absolute; right: 14px; top: 10px; background: var(--green); color: white; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 10px; text-transform: uppercase; }
-.savings-bar-wrap { padding: 0 14px; margin-top: 4px; }
-.savings-bar { height: 4px; background: var(--cream2); border-radius: 2px; overflow: hidden; margin-bottom: 2px; }
-.savings-bar-fill { height: 100%; border-radius: 2px; background: var(--green-mid); }
-.savings-bar-fill.expensive { background: var(--orange); }
-.savings-label { font-size: 10px; color: var(--text-dim); text-align: right; padding-bottom: 8px; }
-.store-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.dot-hk { background: var(--orange); }
-.dot-costco { background: var(--blue); }
-.dot-sams { background: var(--green-mid); }
-
-/* BROWSE */
-.section-header { display: flex; align-items: center; gap: 8px; padding: 16px 0 8px; }
-.section-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.section-icon.hk { background: var(--orange-light); }
-.section-icon.costco { background: var(--blue-light); }
-.section-icon.sams { background: var(--green-light); }
-.section-name { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; color: var(--text); }
-.section-count { font-size: 11px; color: var(--text-dim); background: var(--cream2); padding: 2px 8px; border-radius: 10px; }
-.item-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 13px 14px; margin-bottom: 8px; cursor: pointer; box-shadow: var(--shadow); transition: box-shadow 0.2s, border-color 0.2s; position: relative; overflow: hidden; }
-.item-card.expanded { border-color: var(--green); box-shadow: 0 4px 20px rgba(45,106,79,0.12); }
-.item-card::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 4px 0 0 4px; }
-.item-card[data-type="hk"]::after { background: var(--orange); }
-.item-card[data-type="costco"]::after { background: var(--blue); }
-.item-card[data-type="sams"]::after { background: var(--green-mid); }
-.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.item-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; line-height: 1.3; }
-.item-price-col { text-align: right; flex-shrink: 0; }
-.item-price { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; color: var(--green); }
-.item-unit { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
-.item-meta { display: flex; gap: 6px; margin-top: 6px; align-items: center; flex-wrap: wrap; }
-.store-chip { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
-.store-chip.hk { background: var(--orange-light); color: var(--orange); }
-.store-chip.costco { background: var(--blue-light); color: var(--blue); }
-.store-chip.sams { background: var(--green-light); color: var(--green); }
-.qty-text { font-size: 11px; color: var(--text-dim); }
-.card-expanded { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); flex-direction: column; gap: 10px; }
-.item-card.expanded .card-expanded { display: flex; }
-.exp-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-mid); }
-.exp-row span:last-child { color: var(--text); font-weight: 500; }
-.card-actions { display: flex; gap: 8px; margin-top: 4px; }
-.act-btn { flex: 1; padding: 9px; border-radius: 10px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
-.act-btn:active { opacity: 0.7; }
-.edit-btn { background: var(--cream2); color: var(--text); border: 1.5px solid var(--border); }
-.del-btn { background: var(--red-light); color: var(--red); border: 1.5px solid #f5c4b5; }
-
-/* EMPTY */
-.empty { text-align: center; padding: 60px 20px; }
-.empty-emoji { font-size: 52px; margin-bottom: 12px; }
-.empty p { font-size: 14px; color: var(--text-mid); }
-
-/* STATS BAR */
-.statsbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1.5px solid var(--border); padding: 8px 16px calc(var(--safe-bottom) + 8px); display: flex; justify-content: space-around; z-index: 99; box-shadow: 0 -2px 12px rgba(26,21,16,0.06); }
-.stat { text-align: center; }
-.stat-num { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--green); }
-.stat-label { font-size: 9px; color: var(--text-dim); letter-spacing: 0.5px; text-transform: uppercase; margin-top: 1px; }
-.stat-div { width: 1px; background: var(--border); align-self: stretch; margin: 2px 0; }
-
-/* MODAL */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,21,16,0.5); z-index: 200; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
-.modal-overlay.open { display: flex; }
-.modal { background: var(--white); border-radius: 24px 24px 0 0; border: 1.5px solid var(--border); border-bottom: none; width: 100%; max-width: 600px; padding: 6px 20px calc(var(--safe-bottom) + 24px); animation: slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 -8px 40px rgba(26,21,16,0.12); }
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 16px; }
-.modal-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; margin-bottom: 18px; color: var(--text); }
-.form-group { margin-bottom: 14px; }
-.form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--text-mid); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px; }
-.form-group input, .form-group select { width: 100%; background: var(--cream); border: 1.5px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; padding: 11px 14px; outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
-.form-group input:focus, .form-group select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(45,106,79,0.1); background: var(--white); }
-.form-row { display: flex; gap: 10px; }
-.form-row .form-group { flex: 1; }
-.modal-btns { display: flex; gap: 10px; margin-top: 18px; }
-.btn-cancel { flex: 1; padding: 13px; background: var(--cream2); border: 1.5px solid var(--border); border-radius: 14px; color: var(--text-mid); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
-.btn-save { flex: 2; padding: 13px; background: var(--green); border: none; border-radius: 14px; color: white; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(45,106,79,0.3); }
-.btn-save:active { opacity: 0.85; }
-.hint-text { font-size: 11px; color: var(--text-dim); margin-top: 4px; padding-left: 4px; }
-.results-meta { font-size: 12px; color: var(--text-dim); padding: 14px 0 4px; }
-
-/* SCAN UI */
-.scan-status { font-size: 13px; color: var(--text-mid); text-align: center; padding: 12px; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.scan-status.loading { color: var(--green); }
-.scan-status.error { color: var(--red); }
-.scan-found-label { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-.scan-item-card { background: var(--cream); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: border-color 0.2s; }
-.scan-item-card:active { background: var(--green-light); border-color: var(--green); }
-.scan-item-info { flex: 1; }
-.scan-item-name { font-size: 14px; font-weight: 600; color: var(--text); }
-.scan-item-detail { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
-.scan-item-price { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; color: var(--green); white-space: nowrap; }
-.scan-add-hint { font-size: 10px; color: var(--green); font-weight: 600; text-align: center; margin-top: 8px; }
-
-/* LIVE MODE */
-.chip-live { border-color: #e53e3e; color: #e53e3e; }
-.chip-live.active { background: #e53e3e; border-color: #e53e3e; color: white; }
-.live-banner { background: #fff5f5; border: 1.5px solid #fed7d7; border-radius: 12px; padding: 10px 14px; margin: 12px 0 4px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #c53030; }
-.live-banner strong { font-weight: 700; }
-.live-search-wrap { margin: 8px 0; }
-.live-search { width: 100%; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; color: var(--text); font-family: "DM Sans", sans-serif; font-size: 15px; padding: 12px 14px; outline: none; transition: border-color 0.2s; }
-.live-search:focus { border-color: #e53e3e; box-shadow: 0 0 0 3px rgba(229,62,62,0.1); }
-.live-search::placeholder { color: var(--text-dim); }
-.live-loading { text-align: center; padding: 40px 20px; color: var(--text-dim); font-size: 14px; }
-.live-spinner { font-size: 32px; display: block; margin-bottom: 12px; animation: spin 1s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.live-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 10px; box-shadow: var(--shadow); }
-.live-card-header { padding: 12px 14px 8px; border-bottom: 1px solid var(--border); }
-.live-product-name { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.3; }
-.live-product-brand { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-.live-price-row { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border); gap: 10px; cursor: pointer; transition: background 0.15s; }
-.live-price-row:last-child { border-bottom: none; }
-.live-price-row:active { background: var(--cream); }
-.live-price-row.best-live { background: var(--green-light); }
-.live-store-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); }
-.live-offer { font-size: 10px; color: var(--orange); margin-top: 2px; }
-.live-price-val { font-family: "Fraunces", serif; font-size: 15px; font-weight: 600; color: var(--text); }
-.live-price-val.cheapest { color: var(--green); }
-.live-save-btn { background: var(--green); color: white; border: none; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
-.live-save-btn:active { opacity: 0.8; }
-.live-best-badge { background: var(--green); color: white; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
-.live-empty { text-align: center; padding: 40px 20px; color: var(--text-dim); }
-.live-count { font-size: 11px; color: var(--text-dim); padding: 8px 0 4px; }
-
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--cream);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100dvh;overflow-x:hidden}
+.header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--white);border-bottom:1.5px solid var(--border);padding:calc(var(--safe-top) + 10px) 16px 10px;box-shadow:0 2px 16px rgba(26,21,16,0.06)}
+.header-inner{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.header-top{display:flex;align-items:center;gap:8px}
+.logo-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.logo-icon{width:34px;height:34px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-text{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--green);letter-spacing:-0.5px}
+.search-wrap{flex:1;position:relative}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-dim);pointer-events:none;font-size:16px}
+#search{width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px 9px 34px;outline:none;transition:border-color 0.2s}
+#search:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(45,106,79,0.1);background:var(--white)}
+#search::placeholder{color:var(--text-dim)}
+.scan-btn{background:var(--orange-light);color:var(--orange);border:1.5px solid #f0c8a8;border-radius:12px;width:38px;height:38px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.15s}
+.scan-btn:active{transform:scale(0.92)}
+.add-btn{background:var(--green);color:white;border:none;border-radius:12px;width:38px;height:38px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(45,106,79,0.3);transition:transform 0.15s}
+.add-btn:active{transform:scale(0.92)}
+.filterbar{overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.filterbar::-webkit-scrollbar{display:none}
+.filter-row{display:flex;gap:6px}
+.chip{background:var(--cream);border:1.5px solid var(--border);border-radius:20px;color:var(--text-mid);font-size:12px;font-weight:500;padding:5px 13px;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
+.chip.active{background:var(--green);border-color:var(--green);color:white}
+.chip:active{transform:scale(0.95)}
+.chip-live{border-color:#e53e3e;color:#e53e3e}
+.chip-live.active{background:#e53e3e;border-color:#e53e3e;color:white}
+.content{padding-top:calc(var(--safe-top) + 128px);padding-bottom:calc(var(--safe-bottom) + 80px);max-width:600px;margin:0 auto;padding-left:16px;padding-right:16px}
+.comparison-header{padding:16px 0 8px;display:flex;align-items:baseline;gap:8px}
+.comparison-title{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--text)}
+.comparison-subtitle{font-size:12px;color:var(--text-dim)}
+.comparison-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;box-shadow:var(--shadow)}
+.comp-row{display:flex;align-items:center;padding:13px 14px;border-bottom:1px solid var(--border);gap:12px;cursor:pointer;position:relative;transition:background 0.15s}
+.comp-row:last-child{border-bottom:none}
+.comp-row:active{background:var(--cream)}
+.rank-badge{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.rank-1{background:var(--gold-light);color:var(--gold)}
+.rank-2,.rank-3{background:var(--cream2);color:var(--text-mid)}
+.rank-other{background:var(--cream);color:var(--text-dim);font-size:11px}
+.comp-main{flex:1;min-width:0}
+.comp-store{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp-qty{font-size:11px;color:var(--text-dim);margin-top:2px}
+.comp-equiv{font-size:10px;color:var(--green-mid);margin-top:1px}
+.comp-prices{text-align:right;flex-shrink:0}
+.comp-unit-price{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--text)}
+.comp-unit-price.best{color:var(--green)}
+.comp-total-price{font-size:11px;color:var(--text-dim);margin-top:1px}
+.best-badge{position:absolute;right:14px;top:10px;background:var(--green);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;text-transform:uppercase}
+.savings-bar-wrap{padding:0 14px;margin-top:4px}
+.savings-bar{height:4px;background:var(--cream2);border-radius:2px;overflow:hidden;margin-bottom:2px}
+.savings-bar-fill{height:100%;border-radius:2px;background:var(--green-mid)}
+.savings-bar-fill.expensive{background:var(--orange)}
+.savings-label{font-size:10px;color:var(--text-dim);text-align:right;padding-bottom:8px}
+.store-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-hk{background:var(--orange)}.dot-costco{background:var(--blue)}.dot-sams{background:var(--green-mid)}
+.section-header{display:flex;align-items:center;gap:8px;padding:16px 0 8px}
+.section-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.section-icon.hk{background:var(--orange-light)}.section-icon.costco{background:var(--blue-light)}.section-icon.sams{background:var(--green-light)}
+.section-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--text)}
+.section-count{font-size:11px;color:var(--text-dim);background:var(--cream2);padding:2px 8px;border-radius:10px}
+.item-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:13px 14px;margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow);transition:box-shadow 0.2s,border-color 0.2s;position:relative;overflow:hidden}
+.item-card.expanded{border-color:var(--green);box-shadow:0 4px 20px rgba(45,106,79,0.12)}
+.item-card::after{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px}
+.item-card[data-type="hk"]::after{background:var(--orange)}
+.item-card[data-type="costco"]::after{background:var(--blue)}
+.item-card[data-type="sams"]::after{background:var(--green-mid)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.item-name{font-size:14px;font-weight:600;color:var(--text);flex:1;line-height:1.3}
+.item-price-col{text-align:right;flex-shrink:0}
+.item-price{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--green)}
+.item-unit{font-size:10px;color:var(--text-dim);margin-top:1px}
+.item-meta{display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap}
+.store-chip{font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px}
+.store-chip.hk{background:var(--orange-light);color:var(--orange)}
+.store-chip.costco{background:var(--blue-light);color:var(--blue)}
+.store-chip.sams{background:var(--green-light);color:var(--green)}
+.qty-text{font-size:11px;color:var(--text-dim)}
+.card-expanded{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-direction:column;gap:10px}
+.item-card.expanded .card-expanded{display:flex}
+.exp-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-mid)}
+.exp-row span:last-child{color:var(--text);font-weight:500}
+.card-actions{display:flex;gap:8px;margin-top:4px}
+.act-btn{flex:1;padding:9px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.act-btn:active{opacity:0.7}
+.edit-btn{background:var(--cream2);color:var(--text);border:1.5px solid var(--border)}
+.del-btn{background:var(--red-light);color:var(--red);border:1.5px solid #f5c4b5}
+.empty{text-align:center;padding:60px 20px}
+.empty-emoji{font-size:52px;margin-bottom:12px}
+.empty p{font-size:14px;color:var(--text-mid)}
+.statsbar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1.5px solid var(--border);padding:8px 16px calc(var(--safe-bottom) + 8px);display:flex;justify-content:space-around;z-index:99;box-shadow:0 -2px 12px rgba(26,21,16,0.06)}
+.stat{text-align:center}
+.stat-num{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--green)}
+.stat-label{font-size:9px;color:var(--text-dim);letter-spacing:0.5px;text-transform:uppercase;margin-top:1px}
+.stat-div{width:1px;background:var(--border);align-self:stretch;margin:2px 0}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,21,16,0.5);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:24px 24px 0 0;border:1.5px solid var(--border);border-bottom:none;width:100%;max-width:600px;padding:6px 20px calc(var(--safe-bottom) + 24px);animation:slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 -8px 40px rgba(26,21,16,0.12)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 16px}
+.modal-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:18px;color:var(--text)}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text-mid);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px}
+.form-group input,.form-group select{width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:11px 14px;outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(45,106,79,0.1);background:var(--white)}
+.form-row{display:flex;gap:10px}
+.form-row .form-group{flex:1}
+.modal-btns{display:flex;gap:10px;margin-top:18px}
+.btn-cancel{flex:1;padding:13px;background:var(--cream2);border:1.5px solid var(--border);border-radius:14px;color:var(--text-mid);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.btn-save{flex:2;padding:13px;background:var(--green);border:none;border-radius:14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(45,106,79,0.3)}
+.btn-save:active{opacity:0.85}
+.hint-text{font-size:11px;color:var(--text-dim);margin-top:4px;padding-left:4px}
+.results-meta{font-size:12px;color:var(--text-dim);padding:14px 0 4px}
+/* SCAN */
+.scan-status{font-size:13px;color:var(--text-mid);text-align:center;padding:12px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px}
+.scan-status.loading{color:var(--green)}
+.scan-status.error{color:var(--red)}
+.scan-found-label{font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.scan-item-card{background:var(--cream);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:border-color 0.2s}
+.scan-item-card:active{background:var(--green-light);border-color:var(--green)}
+.scan-item-info{flex:1}
+.scan-item-name{font-size:14px;font-weight:600;color:var(--text)}
+.scan-item-detail{font-size:11px;color:var(--text-dim);margin-top:3px}
+.scan-item-price{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--green);white-space:nowrap}
+.scan-add-hint{font-size:10px;color:var(--green);font-weight:600;text-align:center;margin-top:8px}
+/* LIVE */
+.live-banner{background:#fff5f5;border:1.5px solid #fed7d7;border-radius:12px;padding:10px 14px;margin:12px 0 8px;display:flex;align-items:center;gap:8px;font-size:12px;color:#c53030}
+.live-banner strong{font-weight:700}
+.live-search-wrap{margin-bottom:10px}
+.live-search{width:100%;background:var(--white);border:1.5px solid #fed7d7;border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:12px 14px;outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+.live-search:focus{border-color:#e53e3e;box-shadow:0 0 0 3px rgba(229,62,62,0.1)}
+.live-search::placeholder{color:var(--text-dim)}
+.live-loading{text-align:center;padding:40px 20px;color:var(--text-dim);font-size:14px}
+.live-spinner{display:inline-block;animation:spin 1s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.live-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;box-shadow:var(--shadow)}
+.live-card-header{padding:12px 14px 8px;border-bottom:1px solid var(--border)}
+.live-product-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+.live-product-brand{font-size:11px;color:var(--text-dim);margin-top:2px}
+.live-price-row{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px;transition:background 0.15s}
+.live-price-row:last-child{border-bottom:none}
+.live-price-row.best-live{background:var(--green-light)}
+.live-store-name{flex:1;font-size:13px;font-weight:500;color:var(--text)}
+.live-offer{font-size:10px;color:var(--orange);margin-top:2px}
+.live-price-val{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--text)}
+.live-price-val.cheapest{color:var(--green)}
+.live-save-btn{background:var(--green);color:white;border:none;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0}
+.live-save-btn:active{opacity:0.8}
+.live-best-badge{background:var(--green);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:6px}
+.live-empty{text-align:center;padding:40px 20px;color:var(--text-dim)}
+.live-count{font-size:11px;color:var(--text-dim);padding:4px 0 8px}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-inner">
     <div class="header-top">
@@ -214,7 +185,7 @@ body { background: var(--cream); color: var(--text); font-family: 'DM Sans', san
       </div>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="search" id="search" placeholder="Search & compare prices…" autocomplete="off" autocorrect="off" spellcheck="false">
+        <input type="search" id="search" placeholder="Search &amp; compare prices…" autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
       <button class="scan-btn" onclick="openScan()">📷</button>
       <button class="add-btn" onclick="openModal()">+</button>
@@ -245,7 +216,7 @@ body { background: var(--cream); color: var(--text); font-family: 'DM Sans', san
   <div class="stat"><div class="stat-num" id="sSams">0</div><div class="stat-label">Sam's SZ</div></div>
 </div>
 
-<!-- SCAN MODAL -->
+<!-- SCAN -->
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleScanImage(event)">
 <div class="modal-overlay" id="scanOverlay" onclick="handleScanOverlay(event)">
   <div class="modal">
@@ -266,45 +237,23 @@ body { background: var(--cream); color: var(--text); font-family: 'DM Sans', san
   </div>
 </div>
 
-<!-- ADD/EDIT MODAL -->
+<!-- ADD/EDIT -->
 <div class="modal-overlay" id="overlay" onclick="handleOverlay(event)">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="modalTitle">Add Item</div>
-    <div class="form-group">
-      <label>Item Name</label>
-      <input type="text" id="fItem" placeholder="e.g. Carrots">
-    </div>
+    <div class="form-group"><label>Item Name</label><input type="text" id="fItem" placeholder="e.g. Carrots"></div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Quantity</label>
-        <input type="text" id="fQty" placeholder="e.g. 500g, 2pcs, 1kg">
-      </div>
-      <div class="form-group">
-        <label>Currency</label>
-        <select id="fCurrency">
-          <option value="HKD">HKD</option>
-          <option value="CNY">CNY</option>
-        </select>
-      </div>
+      <div class="form-group"><label>Quantity</label><input type="text" id="fQty" placeholder="e.g. 500g, 2pcs, 1kg"></div>
+      <div class="form-group"><label>Currency</label><select id="fCurrency"><option value="HKD">HKD</option><option value="CNY">CNY</option></select></div>
     </div>
-    <div class="form-group">
-      <label>Price</label>
-      <input type="number" id="fPrice" placeholder="0.00" step="0.01" min="0">
-    </div>
-    <div class="form-group">
-      <label>Store</label>
+    <div class="form-group"><label>Price</label><input type="number" id="fPrice" placeholder="0.00" step="0.01" min="0"></div>
+    <div class="form-group"><label>Store</label>
       <select id="fStore">
-        <option>PARKnSHOP</option>
-        <option>Wellcome</option>
-        <option>Taste</option>
-        <option>Sweet Decorations</option>
-        <option>DS Groceries</option>
-        <option>DON DON DONKI</option>
-        <option>Green (HK)</option>
-        <option>Costco Shenzhen</option>
-        <option>Sam's Club Shenzhen</option>
-        <option>Other</option>
+        <option>PARKnSHOP</option><option>Wellcome</option><option>Taste</option>
+        <option>Sweet Decorations</option><option>DS Groceries</option>
+        <option>DON DON DONKI</option><option>Green (HK)</option>
+        <option>Costco Shenzhen</option><option>Sam's Club Shenzhen</option><option>Other</option>
       </select>
     </div>
     <div class="hint-text">💡 Tip: use "500g", "1kg", "2pcs", "1L" for best price comparison</div>
@@ -316,9 +265,10 @@ body { background: var(--cream); color: var(--text); font-family: 'DM Sans', san
 </div>
 
 <script>
-const CNY_TO_HKD = 1.07;
+var CNY_TO_HKD = 1.07;
+var OPW_PROXY = 'https://opw-proxy-red.vercel.app/api/prices';
 
-const SEED = [
+var SEED = [
   {item:'White vinegar',qty:'500ml',currency:'HKD',price:12.9,store:'PARKnSHOP'},
   {item:'Citric acid',qty:'30g',currency:'HKD',price:8.1,store:'Sweet Decorations'},
   {item:'Carrots',qty:'500g',currency:'HKD',price:8.9,store:'Wellcome'},
@@ -365,7 +315,7 @@ const SEED = [
   {item:'Eggs, Tiansheng fresh (antibiotic-free)',qty:'30pcs',currency:'CNY',price:22.9,store:'Costco Shenzhen'},
   {item:'Olive oil, Olivoila EVOO',qty:'3L',currency:'CNY',price:179.7,store:'Costco Shenzhen'},
   {item:'Olive oil, KS Spanish EVOO',qty:'3L',currency:'CNY',price:179.9,store:'Costco Shenzhen'},
-  {item:'Olive oil, La Española EVOO',qty:'5L',currency:'CNY',price:232.9,store:'Costco Shenzhen'},
+  {item:'Olive oil, La Espa\u00f1ola EVOO',qty:'5L',currency:'CNY',price:232.9,store:'Costco Shenzhen'},
   {item:'Balsamic Vinegar',qty:'1L',currency:'CNY',price:99.9,store:'Costco Shenzhen'},
   {item:'Body wash, Dove refill',qty:'340ml',currency:'HKD',price:23.9,store:'DON DON DONKI'},
   {item:'Spring onions',qty:'70g',currency:'HKD',price:4.9,store:'PARKnSHOP'},
@@ -394,658 +344,382 @@ const SEED = [
   {item:'Lamb chops, seasoned',qty:'12pcs',currency:'CNY',price:154.9,store:"Sam's Club Shenzhen"},
   {item:'Olive oil, I.MM EVOO',qty:'3L',currency:'CNY',price:139.9,store:"Sam's Club Shenzhen"},
   {item:'Carrots',qty:'1kg',currency:'CNY',price:11.9,store:"Sam's Club Shenzhen"},
-  {item:'Nuts, mix, salted',qty:'1.1kg',currency:'CNY',price:105.9,store:"Sam's Club Shenzhen"},
+  {item:'Nuts, mix, salted',qty:'1.1kg',currency:'CNY',price:105.9,store:"Sam's Club Shenzhen"}
 ];
 
 // ── Unit parsing ──
-function parseQty(qtyStr) {
-  if (!qtyStr || qtyStr === '???' || qtyStr === '—') return null;
-  const s = qtyStr.toLowerCase().trim();
-  const multi = s.match(/^([\d.]+)\s*[x×]\s*([\d.]+)\s*(g|kg|ml|l|pcs?|pc|lb|pieces?)?/) ||
-                s.match(/^([\d.]+)\s*(g|kg|ml|l|lb)?\s*[x×]\s*([\d.]+)/);
-  if (multi) {
-    const a = parseFloat(multi[1]);
-    const b = parseFloat(multi[2] || multi[3] || '1');
-    const unit = (multi[3] || multi[2] || '').toLowerCase();
-    return normaliseUnit(a * b, unit || 'unit');
-  }
-  const perMatch = s.match(/^per\s*(lb|kg|g|ml|l)/);
-  if (perMatch) return normaliseUnit(1, perMatch[1]);
-  const approx = s.match(/[~≈]?([\d.]+)\s*(g|kg|ml|l|lb|pcs?|pc|pieces?|pack|each)/);
-  if (approx) return normaliseUnit(parseFloat(approx[1]), approx[2]);
-  const plain = s.match(/^([\d.]+)\s*(g|kg|ml|l|lb|pcs?|pc|pieces?|pack|each)?/);
-  if (plain) return normaliseUnit(parseFloat(plain[1]), plain[2] || 'unit');
+function parseQty(s) {
+  if (!s || s==='???' || s==='—') return null;
+  s = s.toLowerCase().trim();
+  var m;
+  m = s.match(/^([\d.]+)\s*[x\xd7]\s*([\d.]+)\s*(g|kg|ml|l|pcs?|pc|lb)?/);
+  if (m) return norm(parseFloat(m[1])*parseFloat(m[2]), m[3]||'unit');
+  m = s.match(/^per\s*(lb|kg|g|ml|l)/);
+  if (m) return norm(1, m[1]);
+  m = s.match(/([\d.]+)\s*(g|kg|ml|l|lb|pcs?|pc|pieces?|pack|each)/);
+  if (m) return norm(parseFloat(m[1]), m[2]);
+  m = s.match(/^([\d.]+)/);
+  if (m) return norm(parseFloat(m[1]), 'unit');
   return null;
 }
-
-function normaliseUnit(amount, unit) {
-  const u = (unit || '').toLowerCase().replace(/s$/, '');
-  switch(u) {
-    case 'g':     return { amount: amount / 1000, unit: 'kg' };
-    case 'kg':    return { amount, unit: 'kg' };
-    case 'ml':    return { amount: amount / 1000, unit: 'L' };
-    case 'l':     return { amount, unit: 'L' };
-    case 'lb':    return { amount: amount * 0.4536, unit: 'kg' };
-    case 'pc':
-    case 'pcs':
-    case 'piece':
-    case 'each':  return { amount, unit: 'pc' };
-    case 'pack':  return { amount, unit: 'pack' };
-    default:      return { amount, unit: u || 'unit' };
-  }
+function norm(amt, u) {
+  u = (u||'').toLowerCase().replace(/s$/,'');
+  if (u==='g') return {amount:amt/1000,unit:'kg'};
+  if (u==='kg') return {amount:amt,unit:'kg'};
+  if (u==='ml') return {amount:amt/1000,unit:'L'};
+  if (u==='l') return {amount:amt,unit:'L'};
+  if (u==='lb') return {amount:amt*0.4536,unit:'kg'};
+  if (u==='pc'||u==='pcs'||u==='piece'||u==='each') return {amount:amt,unit:'pc'};
+  return {amount:amt,unit:u||'unit'};
 }
-
-function pricePerUnit(item) {
-  const parsed = parseQty(item.qty);
-  if (!parsed || parsed.amount === 0) return null;
-  return { ppu: item.price / parsed.amount, unit: parsed.unit };
+function ppu(item) {
+  var p = parseQty(item.qty);
+  if (!p||p.amount===0) return null;
+  return {ppu:item.price/p.amount, unit:p.unit};
 }
-
-function toHKD(price, currency) {
-  return currency === 'CNY' ? price * CNY_TO_HKD : price;
-}
-
-function formatPPU(ppu, unit, currency) {
-  const sym = currency === 'HKD' ? 'HK$' : '¥';
-  const val = ppu < 10 ? ppu.toFixed(2) : ppu.toFixed(1);
-  return sym + val + '/' + unit;
+function toHKD(price, cur) { return cur==='CNY' ? price*CNY_TO_HKD : price; }
+function fmtPPU(v, unit, cur) {
+  var sym = cur==='HKD'?'HK$':'¥';
+  return sym+(v<10?v.toFixed(2):v.toFixed(1))+'/'+unit;
 }
 
 // ── State ──
-let items = [];
-let activeFilter = 'all';
-let editIdx = null;
-let scanResults = [];
+var items=[], activeFilter='all', editIdx=null, scanResults=[];
+var opwData=null, opwLoading=false, liveQ='';
 
-function storeType(store) {
+function stype(store) {
   if (!store) return 'hk';
-  const s = store.toLowerCase();
+  var s=store.toLowerCase();
   if (s.includes('costco')) return 'costco';
-  if (s.includes("sam's") || s.includes('sams')) return 'sams';
+  if (s.includes("sam's")||s.includes('sams')) return 'sams';
   return 'hk';
 }
 
 function init() {
-  const saved = localStorage.getItem('freshket_v3');
-  items = saved ? JSON.parse(saved) : SEED.map((d, i) => Object.assign({}, d, {id: i}));
-  if (!saved) persist();
+  var saved=localStorage.getItem('freshket_v4');
+  items = saved ? JSON.parse(saved) : SEED.map(function(d,i){return Object.assign({},d,{id:i});});
+  if (!saved) save();
   render();
 }
+function save() { localStorage.setItem('freshket_v4',JSON.stringify(items)); }
 
-function persist() {
-  localStorage.setItem('freshket_v3', JSON.stringify(items));
-}
-
-function setFilter(f, el) {
-  activeFilter = f;
-  document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+function setFilter(f,el) {
+  activeFilter=f;
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
   el.classList.add('active');
   render();
 }
 
 function getFiltered() {
-  const q = document.getElementById('search').value.toLowerCase().trim();
-  return items.filter(function(item) {
-    const type = storeType(item.store);
-    const matchF = activeFilter === 'all' || activeFilter === type ||
-      (activeFilter === 'hkd' && item.currency === 'HKD') ||
-      (activeFilter === 'cny' && item.currency === 'CNY');
-    const matchQ = !q ||
-      item.item.toLowerCase().includes(q) ||
-      (item.store || '').toLowerCase().includes(q) ||
-      (item.qty || '').toLowerCase().includes(q);
-    return matchF && matchQ;
+  var q=document.getElementById('search').value.toLowerCase().trim();
+  return items.filter(function(it) {
+    var t=stype(it.store);
+    var mf=activeFilter==='all'||activeFilter===t||(activeFilter==='hkd'&&it.currency==='HKD')||(activeFilter==='cny'&&it.currency==='CNY');
+    var mq=!q||it.item.toLowerCase().includes(q)||(it.store||'').toLowerCase().includes(q)||(it.qty||'').toLowerCase().includes(q);
+    return mf&&mq;
   });
-}
-
-function groupBySearch(filtered) {
-  var groups = {};
-  filtered.forEach(function(item) {
-    var key = item.item.toLowerCase().split(',')[0].trim();
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-  });
-  return groups;
 }
 
 function render() {
-  const q = document.getElementById('search').value.trim();
-  const filtered = getFiltered();
-  const content = document.getElementById('content');
+  var q=document.getElementById('search').value.trim();
+  var content=document.getElementById('content');
+  var hkN=items.filter(function(i){return stype(i.store)==='hk';}).length;
+  var czN=items.filter(function(i){return stype(i.store)==='costco';}).length;
+  var szN=items.filter(function(i){return stype(i.store)==='sams';}).length;
+  document.getElementById('sTotal').textContent=items.length;
+  document.getElementById('sHK').textContent=hkN;
+  document.getElementById('sCostco').textContent=czN;
+  document.getElementById('sSams').textContent=szN;
 
-  const hkCount = items.filter(function(i) { return storeType(i.store) === 'hk'; }).length;
-  const costcoCount = items.filter(function(i) { return storeType(i.store) === 'costco'; }).length;
-  const samsCount = items.filter(function(i) { return storeType(i.store) === 'sams'; }).length;
-  document.getElementById('sTotal').textContent = items.length;
-  document.getElementById('sHK').textContent = hkCount;
-  document.getElementById('sCostco').textContent = costcoCount;
-  document.getElementById('sSams').textContent = samsCount;
+  if (activeFilter==='live') { renderLive(content); return; }
 
-  if (activeFilter === 'live') {
-    renderLive(content);
+  var filtered=getFiltered();
+  if (!filtered.length) {
+    content.innerHTML='<div class="empty"><div class="empty-emoji">🥦</div><p>No items found.<br>Try a different search.</p></div>';
     return;
   }
-
-  if (filtered.length === 0) {
-    content.innerHTML = '<div class="empty"><div class="empty-emoji">🥦</div><p>No items found.<br>Try a different search or filter.</p></div>';
-    return;
-  }
-
-  if (q.length > 0) {
-    renderComparison(filtered, q, content);
-  } else {
-    renderBrowse(filtered, content);
-  }
+  if (q.length>0) renderComparison(filtered,q,content);
+  else renderBrowse(filtered,content);
 }
 
-function renderComparison(filtered, q, content) {
-  var groups = groupBySearch(filtered);
-  var html = '<div class="results-meta">' + filtered.length + ' result' + (filtered.length !== 1 ? 's' : '') + ' for "<strong>' + q + '</strong>" &middot; ranked by HK$ value</div>';
-
+// ── Comparison ──
+function renderComparison(filtered,q,content) {
+  var groups={};
+  filtered.forEach(function(it) {
+    var k=it.item.toLowerCase().split(',')[0].trim();
+    if (!groups[k]) groups[k]=[];
+    groups[k].push(it);
+  });
+  var html='<div class="results-meta">'+filtered.length+' result'+(filtered.length!==1?'s':'')+' for "<strong>'+q+'</strong>" &middot; ranked by HK$ value</div>';
   Object.keys(groups).forEach(function(key) {
-    var groupItems = groups[key];
-    if (!groupItems.length) return;
-
-    var withPPU = groupItems.map(function(item) {
-      var p = pricePerUnit(item);
-      var ppuRaw = p ? p.ppu : null;
-      var ppuHKD = ppuRaw !== null ? toHKD(ppuRaw, item.currency) : null;
-      return { item: item, ppuRaw: ppuRaw, ppuHKD: ppuHKD, ppuUnit: p ? p.unit : null };
+    var gi=groups[key]; if (!gi.length) return;
+    var wp=gi.map(function(it) {
+      var p=ppu(it);
+      var raw=p?p.ppu:null, hkd=raw!==null?toHKD(raw,it.currency):null;
+      return {item:it,raw:raw,hkd:hkd,unit:p?p.unit:null};
     });
-
-    var withVal = withPPU.filter(function(x) { return x.ppuHKD !== null; });
-    withVal.sort(function(a, b) { return a.ppuHKD - b.ppuHKD; });
-    var withoutVal = withPPU.filter(function(x) { return x.ppuHKD === null; });
-    var sorted = withVal.concat(withoutVal);
-
-    var bestHKD = withVal.length > 0 ? withVal[0].ppuHKD : null;
-    var worstHKD = withVal.length > 1 ? withVal[withVal.length - 1].ppuHKD : null;
-
-    var groupTitle = groupItems.length === 1 ? groupItems[0].item : (q.charAt(0).toUpperCase() + q.slice(1));
-    html += '<div class="comparison-header"><div class="comparison-title">' + groupTitle + '</div><div class="comparison-subtitle">' + groupItems.length + ' result' + (groupItems.length !== 1 ? 's' : '') + '</div></div>';
-    html += '<div class="comparison-card">';
-
-    sorted.forEach(function(entry, i) {
-      var item = entry.item;
-      var ppuRaw = entry.ppuRaw;
-      var ppuHKD = entry.ppuHKD;
-      var ppuUnit = entry.ppuUnit;
-      var rank = i + 1;
-      var type = storeType(item.store);
-      var sym = item.currency === 'HKD' ? 'HK$' : '¥';
-      var isBest = ppuHKD !== null && ppuHKD === bestHKD && withVal.length > 1;
-
-      var rankHtml = '';
-      if (ppuHKD !== null) {
-        if (rank === 1) rankHtml = '<div class="rank-badge rank-1">🥇</div>';
-        else if (rank === 2) rankHtml = '<div class="rank-badge rank-2">2</div>';
-        else if (rank === 3) rankHtml = '<div class="rank-badge rank-3">3</div>';
-        else rankHtml = '<div class="rank-badge rank-other">' + rank + '</div>';
-      } else {
-        rankHtml = '<div class="rank-badge rank-other">—</div>';
+    var wv=wp.filter(function(x){return x.hkd!==null;}).sort(function(a,b){return a.hkd-b.hkd;});
+    var wo=wp.filter(function(x){return x.hkd===null;});
+    var sorted=wv.concat(wo);
+    var bestH=wv.length>0?wv[0].hkd:null, worstH=wv.length>1?wv[wv.length-1].hkd:null;
+    var title=gi.length===1?gi[0].item:(q.charAt(0).toUpperCase()+q.slice(1));
+    html+='<div class="comparison-header"><div class="comparison-title">'+title+'</div><div class="comparison-subtitle">'+gi.length+' result'+(gi.length!==1?'s':'')+'</div></div>';
+    html+='<div class="comparison-card">';
+    sorted.forEach(function(e,i) {
+      var it=e.item, t=stype(it.store), sym=it.currency==='HKD'?'HK$':'¥';
+      var isBest=e.hkd!==null&&e.hkd===bestH&&wv.length>1;
+      var rk='';
+      if (e.hkd!==null) { rk=i===0?'<div class="rank-badge rank-1">🥇</div>':i===1?'<div class="rank-badge rank-2">2</div>':i===2?'<div class="rank-badge rank-3">3</div>':'<div class="rank-badge rank-other">'+(i+1)+'</div>'; }
+      else rk='<div class="rank-badge rank-other">—</div>';
+      var ppuStr='—', equiv='';
+      if (e.raw!==null&&e.unit) { ppuStr=fmtPPU(e.raw,e.unit,it.currency); if (it.currency==='CNY'&&e.hkd!==null) equiv='\u2248 HK$'+(e.hkd<10?e.hkd.toFixed(2):e.hkd.toFixed(1))+'/'+e.unit; }
+      var bar='';
+      if (e.hkd!==null&&bestH!==null&&worstH!==null&&worstH!==bestH) {
+        var pct=Math.round(((worstH-e.hkd)/(worstH-bestH))*100);
+        var lbl=isBest?'✓ Best value':(Math.round(((e.hkd-bestH)/bestH)*100)+'% more than best');
+        bar='<div class="savings-bar-wrap"><div class="savings-bar"><div class="savings-bar-fill'+(pct<30?' expensive':'')+'" style="width:'+Math.max(pct,4)+'%"></div></div><div class="savings-label">'+lbl+'</div></div>';
       }
-
-      var ppuStr = '—';
-      var ppuEquiv = '';
-      if (ppuRaw !== null && ppuUnit) {
-        ppuStr = formatPPU(ppuRaw, ppuUnit, item.currency);
-        if (item.currency === 'CNY' && ppuHKD !== null) {
-          ppuEquiv = '≈ HK$' + (ppuHKD < 10 ? ppuHKD.toFixed(2) : ppuHKD.toFixed(1)) + '/' + ppuUnit;
-        }
-      }
-      var totalStr = sym + item.price.toFixed(2) + ' · ' + (item.qty || '?');
-
-      var barHtml = '';
-      if (ppuHKD !== null && bestHKD !== null && worstHKD !== null && worstHKD !== bestHKD) {
-        var pct = Math.round(((worstHKD - ppuHKD) / (worstHKD - bestHKD)) * 100);
-        var isExpensive = pct < 30;
-        var savingLabel = isBest ? '✓ Best value' :
-          (Math.round(((ppuHKD - bestHKD) / bestHKD) * 100) + '% more than best');
-        barHtml = '<div class="savings-bar-wrap"><div class="savings-bar"><div class="savings-bar-fill' + (isExpensive ? ' expensive' : '') + '" style="width:' + Math.max(pct, 4) + '%"></div></div><div class="savings-label">' + savingLabel + '</div></div>';
-      }
-
-      var idx = items.indexOf(item);
-      html += '<div>';
-      html += '<div class="comp-row" onclick="toggleCard(' + idx + ')">';
-      html += rankHtml;
-      html += '<div class="store-dot dot-' + type + '"></div>';
-      html += '<div class="comp-main">';
-      html += '<div class="comp-store">' + item.store + '</div>';
-      html += '<div class="comp-qty">' + item.item + ' · ' + (item.qty || '?') + '</div>';
-      if (ppuEquiv) html += '<div class="comp-equiv">' + ppuEquiv + '</div>';
-      html += '</div>';
-      html += '<div class="comp-prices">';
-      if (isBest) html += '<div class="best-badge">Best</div>';
-      html += '<div class="comp-unit-price' + (isBest ? ' best' : '') + '">' + ppuStr + '</div>';
-      html += '<div class="comp-total-price">' + totalStr + '</div>';
-      html += '</div></div>';
-      html += barHtml;
-      html += '</div>';
+      var idx=items.indexOf(it);
+      html+='<div><div class="comp-row" onclick="toggleCard('+idx+')">';
+      html+=rk+'<div class="store-dot dot-'+t+'"></div>';
+      html+='<div class="comp-main"><div class="comp-store">'+it.store+'</div><div class="comp-qty">'+it.item+' · '+(it.qty||'?')+'</div>';
+      if (equiv) html+='<div class="comp-equiv">'+equiv+'</div>';
+      html+='</div><div class="comp-prices">'+(isBest?'<div class="best-badge">Best</div>':'')+
+        '<div class="comp-unit-price'+(isBest?' best':'')+'">'+ppuStr+'</div>'+
+        '<div class="comp-total-price">'+sym+it.price.toFixed(2)+' · '+(it.qty||'?')+'</div></div></div>'+bar+'</div>';
     });
-
-    html += '</div>';
+    html+='</div>';
   });
-
-  content.innerHTML = html;
+  content.innerHTML=html;
 }
 
-function renderBrowse(filtered, content) {
-  var byStore = {};
-  filtered.forEach(function(item) {
-    var s = item.store || 'Unknown';
-    if (!byStore[s]) byStore[s] = [];
-    byStore[s].push(item);
-  });
-
-  var html = '<div class="results-meta">' + filtered.length + ' item' + (filtered.length !== 1 ? 's' : '') + '</div>';
-
-  var storeOrder = ['PARKnSHOP','Wellcome','Taste','Sweet Decorations','DS Groceries','DON DON DONKI','Green (HK)','Costco Shenzhen',"Sam's Club Shenzhen"];
-  var sortedStores = Object.keys(byStore).sort(function(a, b) {
-    var ai = storeOrder.indexOf(a); var bi = storeOrder.indexOf(b);
-    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
-  });
-
-  var storeIcons = {
-    'PARKnSHOP':'🏪','Wellcome':'🛒','Taste':'🍽️','Sweet Decorations':'🧁',
-    'DS Groceries':'🥩','DON DON DONKI':'🎌','Green (HK)':'🌿',
-    'Costco Shenzhen':'🏬',"Sam's Club Shenzhen":'🏪'
-  };
-
-  sortedStores.forEach(function(store) {
-    var storeItems = byStore[store];
-    var type = storeType(store);
-    var icon = storeIcons[store] || (type === 'hk' ? '🇭🇰' : '🇨🇳');
-
-    html += '<div class="section-header">';
-    html += '<div class="section-icon ' + type + '">' + icon + '</div>';
-    html += '<div class="section-name">' + store + '</div>';
-    html += '<div class="section-count">' + storeItems.length + '</div>';
-    html += '</div>';
-
-    storeItems.forEach(function(item) {
-      var idx = items.indexOf(item);
-      var sym = item.currency === 'HKD' ? 'HK$' : '¥';
-      var p = pricePerUnit(item);
-      var ppuStr = p ? formatPPU(p.ppu, p.unit, item.currency) : null;
-
-      html += '<div class="item-card" data-type="' + type + '" data-idx="' + idx + '" onclick="toggleCard(' + idx + ')">';
-      html += '<div class="card-top">';
-      html += '<div class="item-name">' + item.item + '</div>';
-      html += '<div class="item-price-col">';
-      html += '<div class="item-price">' + sym + item.price.toFixed(2) + '</div>';
-      if (ppuStr) html += '<div class="item-unit">' + ppuStr + '</div>';
-      html += '</div></div>';
-      html += '<div class="item-meta">';
-      html += '<span class="store-chip ' + type + '">' + store + '</span>';
-      html += '<span class="qty-text">' + (item.qty || '—') + '</span>';
-      html += '</div>';
-      html += '<div class="card-expanded">';
-      html += '<div class="exp-row"><span>Currency</span><span>' + item.currency + '</span></div>';
-      html += '<div class="exp-row"><span>Quantity</span><span>' + (item.qty || '—') + '</span></div>';
-      if (ppuStr) html += '<div class="exp-row"><span>Price per unit</span><span>' + ppuStr + '</span></div>';
-      html += '<div class="card-actions">';
-      html += '<button class="act-btn edit-btn" onclick="event.stopPropagation();editItem(' + idx + ')">✏️ Edit</button>';
-      html += '<button class="act-btn del-btn" onclick="event.stopPropagation();deleteItem(' + idx + ')">🗑 Delete</button>';
-      html += '</div></div></div>';
+// ── Browse ──
+function renderBrowse(filtered,content) {
+  var byStore={};
+  filtered.forEach(function(it){var s=it.store||'Unknown';if(!byStore[s])byStore[s]=[];byStore[s].push(it);});
+  var order=['PARKnSHOP','Wellcome','Taste','Sweet Decorations','DS Groceries','DON DON DONKI','Green (HK)','Costco Shenzhen',"Sam's Club Shenzhen"];
+  var stores=Object.keys(byStore).sort(function(a,b){var ai=order.indexOf(a),bi=order.indexOf(b);return(ai<0?99:ai)-(bi<0?99:bi);});
+  var icons={'PARKnSHOP':'🏪','Wellcome':'🛒','Taste':'🍽️','Sweet Decorations':'🧁','DS Groceries':'🥩','DON DON DONKI':'🎌','Green (HK)':'🌿','Costco Shenzhen':'🏬',"Sam's Club Shenzhen":'🏪'};
+  var html='<div class="results-meta">'+filtered.length+' item'+(filtered.length!==1?'s':'')+'</div>';
+  stores.forEach(function(store) {
+    var si=byStore[store], t=stype(store), ic=icons[store]||(t==='hk'?'🇭🇰':'🇨🇳');
+    html+='<div class="section-header"><div class="section-icon '+t+'">'+ic+'</div><div class="section-name">'+store+'</div><div class="section-count">'+si.length+'</div></div>';
+    si.forEach(function(it) {
+      var idx=items.indexOf(it), sym=it.currency==='HKD'?'HK$':'¥', p=ppu(it), ps=p?fmtPPU(p.ppu,p.unit,it.currency):null;
+      html+='<div class="item-card" data-type="'+t+'" data-idx="'+idx+'" onclick="toggleCard('+idx+')">';
+      html+='<div class="card-top"><div class="item-name">'+it.item+'</div><div class="item-price-col"><div class="item-price">'+sym+it.price.toFixed(2)+'</div>'+(ps?'<div class="item-unit">'+ps+'</div>':'')+'</div></div>';
+      html+='<div class="item-meta"><span class="store-chip '+t+'">'+store+'</span><span class="qty-text">'+(it.qty||'—')+'</span></div>';
+      html+='<div class="card-expanded"><div class="exp-row"><span>Currency</span><span>'+it.currency+'</span></div><div class="exp-row"><span>Quantity</span><span>'+(it.qty||'—')+'</span></div>'+(ps?'<div class="exp-row"><span>Price per unit</span><span>'+ps+'</span></div>':'');
+      html+='<div class="card-actions"><button class="act-btn edit-btn" onclick="event.stopPropagation();editItem('+idx+')">✏️ Edit</button><button class="act-btn del-btn" onclick="event.stopPropagation();deleteItem('+idx+')">🗑 Delete</button></div></div></div>';
     });
   });
-
-  content.innerHTML = html;
+  content.innerHTML=html;
 }
 
 function toggleCard(idx) {
-  var card = document.querySelector('[data-idx="' + idx + '"]');
-  if (!card) return;
-  var wasOpen = card.classList.contains('expanded');
-  document.querySelectorAll('.item-card.expanded').forEach(function(c) { c.classList.remove('expanded'); });
-  if (!wasOpen) card.classList.add('expanded');
+  var c=document.querySelector('[data-idx="'+idx+'"]'); if (!c) return;
+  var was=c.classList.contains('expanded');
+  document.querySelectorAll('.item-card.expanded').forEach(function(x){x.classList.remove('expanded');});
+  if (!was) c.classList.add('expanded');
 }
 
+// ── Add/Edit Modal ──
 function openModal(edit) {
-  editIdx = (edit !== undefined) ? edit : null;
-  document.getElementById('modalTitle').textContent = editIdx !== null ? 'Edit Item' : 'Add Item';
-  if (editIdx !== null) {
-    var it = items[editIdx];
-    document.getElementById('fItem').value = it.item;
-    document.getElementById('fQty').value = it.qty || '';
-    document.getElementById('fCurrency').value = it.currency;
-    document.getElementById('fPrice').value = it.price;
-    document.getElementById('fStore').value = it.store || '';
+  editIdx=(edit!==undefined)?edit:null;
+  document.getElementById('modalTitle').textContent=editIdx!==null?'Edit Item':'Add Item';
+  if (editIdx!==null) {
+    var it=items[editIdx];
+    document.getElementById('fItem').value=it.item;
+    document.getElementById('fQty').value=it.qty||'';
+    document.getElementById('fCurrency').value=it.currency;
+    document.getElementById('fPrice').value=it.price;
+    document.getElementById('fStore').value=it.store||'';
   } else {
-    document.getElementById('fItem').value = '';
-    document.getElementById('fQty').value = '';
-    document.getElementById('fCurrency').value = 'HKD';
-    document.getElementById('fPrice').value = '';
-    document.getElementById('fStore').value = 'PARKnSHOP';
+    document.getElementById('fItem').value='';
+    document.getElementById('fQty').value='';
+    document.getElementById('fCurrency').value='HKD';
+    document.getElementById('fPrice').value='';
+    document.getElementById('fStore').value='PARKnSHOP';
   }
   document.getElementById('overlay').classList.add('open');
-  setTimeout(function() { document.getElementById('fItem').focus(); }, 350);
+  setTimeout(function(){document.getElementById('fItem').focus();},350);
 }
-
-function closeModal() {
-  document.getElementById('overlay').classList.remove('open');
-  editIdx = null;
-}
-
-function handleOverlay(e) {
-  if (e.target === document.getElementById('overlay')) closeModal();
-}
-
+function closeModal() { document.getElementById('overlay').classList.remove('open'); editIdx=null; }
+function handleOverlay(e) { if (e.target===document.getElementById('overlay')) closeModal(); }
 function saveItem() {
-  var item = document.getElementById('fItem').value.trim();
-  var qty = document.getElementById('fQty').value.trim();
-  var currency = document.getElementById('fCurrency').value;
-  var price = parseFloat(document.getElementById('fPrice').value);
-  var store = document.getElementById('fStore').value;
-  if (!item || isNaN(price) || price < 0) { document.getElementById('fItem').focus(); return; }
-  if (editIdx !== null) {
-    items[editIdx] = Object.assign({}, items[editIdx], { item: item, qty: qty, currency: currency, price: price, store: store });
-  } else {
-    items.push({ item: item, qty: qty, currency: currency, price: price, store: store, id: Date.now() });
-  }
-  persist();
-  closeModal();
-  render();
+  var itm=document.getElementById('fItem').value.trim();
+  var qty=document.getElementById('fQty').value.trim();
+  var cur=document.getElementById('fCurrency').value;
+  var price=parseFloat(document.getElementById('fPrice').value);
+  var store=document.getElementById('fStore').value;
+  if (!itm||isNaN(price)||price<0) { document.getElementById('fItem').focus(); return; }
+  if (editIdx!==null) items[editIdx]=Object.assign({},items[editIdx],{item:itm,qty:qty,currency:cur,price:price,store:store});
+  else items.push({item:itm,qty:qty,currency:cur,price:price,store:store,id:Date.now()});
+  save(); closeModal(); render();
 }
-
 function editItem(idx) { openModal(idx); }
-
 function deleteItem(idx) {
-  if (!confirm('Delete "' + items[idx].item + '"?')) return;
-  items.splice(idx, 1);
-  persist();
-  render();
+  if (!confirm('Delete "'+items[idx].item+'"?')) return;
+  items.splice(idx,1); save(); render();
 }
 
 // ── SCAN ──
 function openScan() {
   document.getElementById('scanOverlay').classList.add('open');
-  document.getElementById('scanPreviewWrap').style.display = 'none';
-  document.getElementById('scanResults').style.display = 'none';
-  var st = document.getElementById('scanStatus');
-  st.className = 'scan-status';
-  st.textContent = 'Take a photo of a price tag or receipt';
+  document.getElementById('scanPreviewWrap').style.display='none';
+  document.getElementById('scanResults').style.display='none';
+  var st=document.getElementById('scanStatus');
+  st.className='scan-status'; st.textContent='Take a photo of a price tag or receipt';
 }
-
-function closeScan() {
-  document.getElementById('scanOverlay').classList.remove('open');
-}
-
-function handleScanOverlay(e) {
-  if (e.target === document.getElementById('scanOverlay')) closeScan();
-}
-
-function triggerCamera() {
-  document.getElementById('cameraInput').click();
-}
-
+function closeScan() { document.getElementById('scanOverlay').classList.remove('open'); }
+function handleScanOverlay(e) { if (e.target===document.getElementById('scanOverlay')) closeScan(); }
+function triggerCamera() { document.getElementById('cameraInput').click(); }
 function handleScanImage(event) {
-  var file = event.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var base64full = e.target.result;
-    document.getElementById('scanPreview').src = base64full;
-    document.getElementById('scanPreviewWrap').style.display = 'block';
-    document.getElementById('scanResults').style.display = 'none';
-    var statusEl = document.getElementById('scanStatus');
-    statusEl.className = 'scan-status loading';
-    statusEl.textContent = '⏳ Analysing image…';
-
-    var base64data = base64full.split(',')[1];
-    var mimeType = file.type || 'image/jpeg';
-
-    var prompt = 'You are analysing a grocery price tag or receipt photo. Extract ALL grocery items with their prices. Return ONLY a valid JSON array with no other text, no markdown fences. Each element must have: {"item": "item name in English", "qty": "quantity e.g. 500g or 1kg or 2pcs", "price": numeric_price_only, "currency": "HKD or CNY", "store": "store name if visible or empty string"}. Use CNY for Costco Shenzhen or Sams Club Shenzhen receipts. Use HKD for HK supermarkets. If no grocery items found return [].';
-
-    fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64data } },
-            { type: 'text', text: prompt }
-          ]
-        }]
-      })
-    })
-    .then(function(res) { return res.json(); })
+  var file=event.target.files[0]; if (!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e) {
+    var full=e.target.result;
+    document.getElementById('scanPreview').src=full;
+    document.getElementById('scanPreviewWrap').style.display='block';
+    document.getElementById('scanResults').style.display='none';
+    var st=document.getElementById('scanStatus');
+    st.className='scan-status loading'; st.textContent='⏳ Analysing image…';
+    var b64=full.split(',')[1], mime=file.type||'image/jpeg';
+    var prompt='Analyse this grocery price tag or receipt. Return ONLY a valid JSON array, no markdown. Each element: {"item":"name in English","qty":"e.g. 500g","price":numeric,"currency":"HKD or CNY","store":"store name or empty"}. Use CNY for Costco/Sams Club Shenzhen. Use HKD for HK supermarkets. Return [] if no items found.';
+    fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mime,data:b64}},{type:'text',text:prompt}]}]})})
+    .then(function(r){return r.json();})
     .then(function(data) {
-      var text = '';
-      if (data.content) {
-        data.content.forEach(function(b) { if (b.type === 'text') text += b.text; });
-      }
-      var parsed = [];
-      try {
-        var clean = text.replace(/```json|```/g, '').trim();
-        parsed = JSON.parse(clean);
-      } catch(err) {
-        console.error('Parse error', text);
-      }
-
-      if (!Array.isArray(parsed) || parsed.length === 0) {
-        statusEl.className = 'scan-status error';
-        statusEl.textContent = '❌ No items found. Try a clearer photo.';
-        return;
-      }
-
-      statusEl.className = 'scan-status';
-      statusEl.textContent = '✅ Found ' + parsed.length + ' item' + (parsed.length > 1 ? 's' : '');
-      scanResults = parsed;
-
-      var container = document.getElementById('scanItems');
-      var itemsHtml = '';
-      parsed.forEach(function(it, i) {
-        var sym = it.currency === 'HKD' ? 'HK$' : '¥';
-        itemsHtml += '<div class="scan-item-card" onclick="addScannedItem(' + i + ')">';
-        itemsHtml += '<div class="scan-item-info">';
-        itemsHtml += '<div class="scan-item-name">' + (it.item || '') + '</div>';
-        itemsHtml += '<div class="scan-item-detail">' + (it.qty || '?') + ' · ' + it.currency + (it.store ? ' · ' + it.store : '') + '</div>';
-        itemsHtml += '</div>';
-        itemsHtml += '<div class="scan-item-price">' + sym + parseFloat(it.price).toFixed(2) + '</div>';
-        itemsHtml += '</div>';
+      var txt=''; if (data.content) data.content.forEach(function(b){if(b.type==='text')txt+=b.text;});
+      var parsed=[];
+      try { parsed=JSON.parse(txt.replace(/```json|```/g,'').trim()); } catch(err) { console.error(err); }
+      if (!Array.isArray(parsed)||!parsed.length) { st.className='scan-status error'; st.textContent='❌ No items found. Try a clearer photo.'; return; }
+      st.className='scan-status'; st.textContent='✅ Found '+parsed.length+' item'+(parsed.length>1?'s':'');
+      scanResults=parsed;
+      var html='';
+      parsed.forEach(function(it,i) {
+        var sym=it.currency==='HKD'?'HK$':'¥';
+        html+='<div class="scan-item-card" onclick="addScannedItem('+i+')">';
+        html+='<div class="scan-item-info"><div class="scan-item-name">'+(it.item||'')+'</div>';
+        html+='<div class="scan-item-detail">'+(it.qty||'?')+' · '+it.currency+(it.store?' · '+it.store:'')+'</div></div>';
+        html+='<div class="scan-item-price">'+sym+parseFloat(it.price).toFixed(2)+'</div></div>';
       });
-      itemsHtml += '<div class="scan-add-hint">Tap an item to add it to your tracker</div>';
-      container.innerHTML = itemsHtml;
-      document.getElementById('scanResults').style.display = 'block';
+      html+='<div class="scan-add-hint">Tap an item to add it to your tracker</div>';
+      document.getElementById('scanItems').innerHTML=html;
+      document.getElementById('scanResults').style.display='block';
     })
-    .catch(function(err) {
-      console.error(err);
-      statusEl.className = 'scan-status error';
-      statusEl.textContent = '❌ Error analysing image. Please try again.';
-    });
+    .catch(function(err){console.error(err);st.className='scan-status error';st.textContent='❌ Error. Please try again.';});
   };
-  reader.readAsDataURL(file);
-  event.target.value = '';
+  reader.readAsDataURL(file); event.target.value='';
 }
-
 function addScannedItem(idx) {
-  var it = scanResults[idx];
-  if (!it) return;
-  closeScan();
-  openModal();
+  var it=scanResults[idx]; if (!it) return;
+  closeScan(); openModal();
   setTimeout(function() {
-    document.getElementById('fItem').value = it.item || '';
-    document.getElementById('fQty').value = it.qty || '';
-    document.getElementById('fCurrency').value = it.currency === 'CNY' ? 'CNY' : 'HKD';
-    document.getElementById('fPrice').value = it.price ? parseFloat(it.price).toFixed(2) : '';
+    document.getElementById('fItem').value=it.item||'';
+    document.getElementById('fQty').value=it.qty||'';
+    document.getElementById('fCurrency').value=it.currency==='CNY'?'CNY':'HKD';
+    document.getElementById('fPrice').value=it.price?parseFloat(it.price).toFixed(2):'';
     if (it.store) {
-      var sel = document.getElementById('fStore');
-      var opts = Array.from(sel.options);
-      for (var i = 0; i < opts.length; i++) {
-        if (opts[i].value.toLowerCase().includes(it.store.toLowerCase())) {
-          sel.value = opts[i].value;
-          break;
-        }
-      }
+      var sel=document.getElementById('fStore'), opts=Array.from(sel.options);
+      for (var i=0;i<opts.length;i++) { if (opts[i].value.toLowerCase().includes(it.store.toLowerCase().split(' ')[0])) { sel.value=opts[i].value; break; } }
     }
-  }, 350);
+  },350);
 }
 
-
-// ══ LIVE HK PRICES (Consumer Council OPW API) ══
-var opwData = null;
-var opwLoading = false;
-var liveSearchTerm = '';
-var OPW_URL = 'https://opw-proxy.vercel.app/api/prices';
-
-var STORE_NAMES = {
-  'WELLCOME': 'Wellcome',
-  'PARKNSHOP': 'PARKnSHOP',
-  'JASONS': 'Market Place by Jasons',
-  'WATSONS': 'Watsons',
-  'AEON': 'AEON',
-  'DCHFOOD': 'DCH Food Mart'
-};
+// ── LIVE HK ──
+var STORE_NAMES={'WELLCOME':'Wellcome','PARKNSHOP':'PARKnSHOP','JASONS':'Market Place by Jasons','WATSONS':'Watsons','AEON':'AEON','DCHFOOD':'DCH Food Mart'};
 
 function renderLive(content) {
-  var html = '';
-  html += '<div class="live-banner">🔴 <div><strong>Live HK Prices</strong> — Consumer Council data, updated daily across 6 major retailers</div></div>';
-  html += '<div class="live-search-wrap"><input class="live-search" type="search" id="liveSearch" placeholder="Search 2,000+ products…" oninput="liveSearchInput()" autocorrect="off" spellcheck="false"></div>';
-
-  if (opwLoading) {
-    html += '<div class="live-loading"><span class="live-spinner">⏳</span>Loading live prices…</div>';
-    content.innerHTML = html;
-    return;
-  }
-
-  if (!opwData) {
-    html += '<div class="live-loading"><span>📡</span><br>Fetching live prices…</div>';
-    content.innerHTML = html;
-    fetchOPW(content);
-    return;
-  }
-
-  if (!liveSearchTerm || liveSearchTerm.length < 2) {
-    html += '<div class="live-empty">Type a product name to search<br><span style="font-size:11px;color:var(--text-dim);">' + opwData.length + ' products available</span></div>';
-    content.innerHTML = html;
-    setTimeout(function() { var el = document.getElementById('liveSearch'); if(el) el.focus(); }, 100);
-    return;
-  }
-
-  var q = liveSearchTerm.toLowerCase();
-  var results = opwData.filter(function(p) {
-    var name = (p.name && p.name.en) ? p.name.en.toLowerCase() : '';
-    var brand = (p.brand && p.brand.en) ? p.brand.en.toLowerCase() : '';
-    var cat = (p.cat1Name && p.cat1Name.en) ? p.cat1Name.en.toLowerCase() : '';
-    return name.includes(q) || brand.includes(q) || cat.includes(q);
-  });
-
-  html += '<div class="live-count">' + results.length + ' product' + (results.length !== 1 ? 's' : '') + ' found</div>';
-
-  if (results.length === 0) {
-    html += '<div class="live-empty">No products found for "' + liveSearchTerm + '"</div>';
-    content.innerHTML = html;
-    return;
-  }
-
-  // Cap at 30 results for performance
-  var shown = results.slice(0, 30);
-  shown.forEach(function(product) {
-    var prices = product.prices || [];
-    if (prices.length === 0) return;
-
-    // Sort prices ascending
-    var sorted = prices.slice().sort(function(a, b) { return parseFloat(a.price) - parseFloat(b.price); });
-    var cheapestPrice = parseFloat(sorted[0].price);
-
-    var productName = (product.name && product.name.en) ? product.name.en : 'Unknown';
-    var brandName = (product.brand && product.brand.en) ? product.brand.en : '';
-
-    html += '<div class="live-card">';
-    html += '<div class="live-card-header">';
-    html += '<div class="live-product-name">' + productName + '</div>';
-    if (brandName) html += '<div class="live-product-brand">' + brandName + ' · ' + (product.cat2Name && product.cat2Name.en ? product.cat2Name.en : '') + '</div>';
-    html += '</div>';
-
-    sorted.forEach(function(entry, i) {
-      var storeName = STORE_NAMES[entry.supermarketCode] || entry.supermarketCode;
-      var price = parseFloat(entry.price);
-      var isCheapest = i === 0 && sorted.length > 1;
-
-      // Find offer for this store
-      var offer = '';
-      if (product.offers) {
-        product.offers.forEach(function(o) {
-          if (o.supermarketCode === entry.supermarketCode && o.en) offer = o.en;
-        });
-      }
-
-      html += '<div class="live-price-row' + (isCheapest ? ' best-live' : '') + '">';
-      html += '<div><div class="live-store-name">' + storeName + (isCheapest ? '<span class="live-best-badge">Cheapest</span>' : '') + '</div>';
-      if (offer) html += '<div class="live-offer">🏷 ' + offer + '</div>';
-      html += '</div>';
-      html += '<div class="live-price-val' + (isCheapest ? ' cheapest' : '') + '">HK$' + price.toFixed(2) + '</div>';
-      html += '<button class="live-save-btn" onclick="saveLiveItem(' + JSON.stringify(productName).replace(/'/g,"&#39;") + ',' + JSON.stringify(storeName).replace(/'/g,"&#39;") + ',' + price + ')">+ Save</button>';
-      html += '</div>';
+  // Build shell only once
+  if (!document.getElementById('liveResults')) {
+    var shell='<div class="live-banner">🔴 <div><strong>Live HK Prices</strong> — Consumer Council data, updated daily across 6 major retailers</div></div>';
+    shell+='<div class="live-search-wrap"><input class="live-search" id="liveSearch" type="search" placeholder="Search 2,000+ products…" autocomplete="off" autocorrect="off" spellcheck="false"></div>';
+    shell+='<div id="liveResults"></div>';
+    content.innerHTML=shell;
+    document.getElementById('liveSearch').addEventListener('input', function() {
+      liveQ=this.value.trim();
+      updateLiveResults();
     });
-
-    html += '</div>';
-  });
-
-  if (results.length > 30) {
-    html += '<div style="text-align:center;font-size:12px;color:var(--text-dim);padding:12px;">Showing first 30 of ' + results.length + ' results. Refine your search for more.</div>';
+    // Pre-fill from main search if any
+    var mq=document.getElementById('search').value.trim();
+    if (mq) { document.getElementById('liveSearch').value=mq; liveQ=mq; }
+    setTimeout(function(){ var el=document.getElementById('liveSearch'); if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);} },80);
   }
-
-  content.innerHTML = html;
-  var lsEl = document.getElementById('liveSearch');
-  if (lsEl) { lsEl.value = liveSearchTerm; lsEl.focus(); }
+  updateLiveResults();
+  if (!opwData && !opwLoading) fetchOPW();
 }
 
-function fetchOPW(content) {
+function updateLiveResults() {
+  var div=document.getElementById('liveResults'); if (!div) return;
+  if (opwLoading) { div.innerHTML='<div class="live-loading"><span class="live-spinner">⏳</span> Loading live prices…</div>'; return; }
+  if (!opwData) { div.innerHTML='<div class="live-loading">📡 Fetching…</div>'; return; }
+  if (!liveQ||liveQ.length<2) { div.innerHTML='<div class="live-empty">Type a product name to search<br><span style="font-size:11px;color:var(--text-dim);">'+opwData.length+' products available</span></div>'; return; }
+  var q=liveQ.toLowerCase();
+  var res=opwData.filter(function(p) {
+    return ((p.name&&p.name.en&&p.name.en.toLowerCase().includes(q))||(p.brand&&p.brand.en&&p.brand.en.toLowerCase().includes(q))||(p.cat2Name&&p.cat2Name.en&&p.cat2Name.en.toLowerCase().includes(q)));
+  });
+  var html='<div class="live-count">'+res.length+' product'+(res.length!==1?'s':'')+' found</div>';
+  if (!res.length) { div.innerHTML=html+'<div class="live-empty">No products found for "'+liveQ+'"</div>'; return; }
+  res.slice(0,30).forEach(function(prod, pi) {
+    var prices=prod.prices||[]; if (!prices.length) return;
+    var sorted=prices.slice().sort(function(a,b){return parseFloat(a.price)-parseFloat(b.price);});
+    var name=(prod.name&&prod.name.en)?prod.name.en:'Unknown';
+    var brand=(prod.brand&&prod.brand.en)?prod.brand.en:'';
+    var cat=(prod.cat2Name&&prod.cat2Name.en)?prod.cat2Name.en:'';
+    html+='<div class="live-card"><div class="live-card-header"><div class="live-product-name">'+name+'</div>';
+    if (brand) html+='<div class="live-product-brand">'+brand+(cat?' · '+cat:'')+'</div>';
+    html+='</div>';
+    sorted.forEach(function(entry, ei) {
+      var sn=STORE_NAMES[entry.supermarketCode]||entry.supermarketCode;
+      var pr=parseFloat(entry.price), cheap=ei===0&&sorted.length>1;
+      var offer='';
+      if (prod.offers) prod.offers.forEach(function(o){if(o.supermarketCode===entry.supermarketCode&&o.en)offer=o.en;});
+      // Store data in global array to avoid inline JSON issues
+      var key='live_'+pi+'_'+ei;
+      html+='<div class="live-price-row'+(cheap?' best-live':'')+'"><div>';
+      html+='<div class="live-store-name">'+sn+(cheap?'<span class="live-best-badge">Cheapest</span>':'')+'</div>';
+      if (offer) html+='<div class="live-offer">🏷 '+offer+'</div>';
+      html+='</div><div class="live-price-val'+(cheap?' cheapest':'')+'">HK$'+pr.toFixed(2)+'</div>';
+      html+='<button class="live-save-btn" data-name="'+name.replace(/"/g,'&quot;')+'" data-store="'+sn.replace(/"/g,'&quot;')+'" data-price="'+pr+'" onclick="saveLiveItem(this)">+ Save</button></div>';
+    });
+    html+='</div>';
+  });
+  if (res.length>30) html+='<div style="text-align:center;font-size:12px;color:var(--text-dim);padding:12px;">Showing first 30 of '+res.length+'. Narrow your search.</div>';
+  div.innerHTML=html;
+}
+
+function fetchOPW() {
   if (opwLoading) return;
-  opwLoading = true;
-  renderLive(content);
-
-  fetch(OPW_URL)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      opwData = data;
-      opwLoading = false;
-      renderLive(document.getElementById('content'));
-    })
-    .catch(function(err) {
-      opwLoading = false;
-      console.error('OPW fetch failed', err);
-      var content = document.getElementById('content');
-      content.innerHTML = '<div class="live-banner">🔴 <div><strong>Live HK Prices</strong></div></div><div class="live-empty">❌ Could not load live prices.<br><span style="font-size:11px;">Check your internet connection and try again.</span><br><br><button class="btn-save" style="width:auto;padding:10px 20px;" onclick="opwData=null;render()">Retry</button></div>';
+  opwLoading=true; updateLiveResults();
+  fetch(OPW_PROXY)
+    .then(function(r){return r.json();})
+    .then(function(data){opwData=data;opwLoading=false;updateLiveResults();})
+    .catch(function(err){
+      console.error('OPW fetch failed',err);
+      opwLoading=false;
+      var div=document.getElementById('liveResults');
+      if (div) div.innerHTML='<div class="live-empty">❌ Could not load live prices.<br><span style="font-size:11px;">Check your connection.</span><br><br><button class="btn-save" style="width:auto;padding:10px 20px;" onclick="opwData=null;opwLoading=false;fetchOPW()">Retry</button></div>';
     });
 }
 
-function liveSearchInput() {
-  var el = document.getElementById('liveSearch');
-  if (el) liveSearchTerm = el.value.trim();
-  renderLive(document.getElementById('content'));
-}
-
-function saveLiveItem(productName, storeName, price) {
+// Use data-attributes instead of inline JSON to avoid quoting issues
+function saveLiveItem(btn) {
+  var name=btn.getAttribute('data-name');
+  var store=btn.getAttribute('data-store');
+  var price=parseFloat(btn.getAttribute('data-price'));
   openModal();
   setTimeout(function() {
-    document.getElementById('fItem').value = productName;
-    document.getElementById('fPrice').value = price.toFixed(2);
-    document.getElementById('fCurrency').value = 'HKD';
-    var sel = document.getElementById('fStore');
-    var opts = Array.from(sel.options);
-    var matched = false;
-    for (var i = 0; i < opts.length; i++) {
-      if (storeName.toLowerCase().includes(opts[i].value.toLowerCase()) || opts[i].value.toLowerCase().includes(storeName.toLowerCase().split(' ')[0])) {
-        sel.value = opts[i].value;
-        matched = true;
-        break;
+    document.getElementById('fItem').value=name;
+    document.getElementById('fPrice').value=price.toFixed(2);
+    document.getElementById('fCurrency').value='HKD';
+    var sel=document.getElementById('fStore'), opts=Array.from(sel.options), matched=false;
+    for (var i=0;i<opts.length;i++) {
+      if (store.toLowerCase().includes(opts[i].value.toLowerCase().split(' ')[0])||opts[i].value.toLowerCase().includes(store.toLowerCase().split(' ')[0])) {
+        sel.value=opts[i].value; matched=true; break;
       }
     }
-    if (!matched) {
-      // Add dynamic option
-      var opt = document.createElement('option');
-      opt.value = storeName;
-      opt.textContent = storeName;
-      sel.appendChild(opt);
-      sel.value = storeName;
-    }
-  }, 350);
+    if (!matched) { var o=document.createElement('option'); o.value=store; o.textContent=store; sel.appendChild(o); sel.value=store; }
+  },350);
 }
 
 document.getElementById('search').addEventListener('input', render);
