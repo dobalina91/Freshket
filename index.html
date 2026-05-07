@@ -170,6 +170,37 @@ body { background: var(--cream); color: var(--text); font-family: 'DM Sans', san
 .scan-item-detail { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
 .scan-item-price { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; color: var(--green); white-space: nowrap; }
 .scan-add-hint { font-size: 10px; color: var(--green); font-weight: 600; text-align: center; margin-top: 8px; }
+
+/* LIVE MODE */
+.chip-live { border-color: #e53e3e; color: #e53e3e; }
+.chip-live.active { background: #e53e3e; border-color: #e53e3e; color: white; }
+.live-banner { background: #fff5f5; border: 1.5px solid #fed7d7; border-radius: 12px; padding: 10px 14px; margin: 12px 0 4px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #c53030; }
+.live-banner strong { font-weight: 700; }
+.live-search-wrap { margin: 8px 0; }
+.live-search { width: 100%; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; color: var(--text); font-family: "DM Sans", sans-serif; font-size: 15px; padding: 12px 14px; outline: none; transition: border-color 0.2s; }
+.live-search:focus { border-color: #e53e3e; box-shadow: 0 0 0 3px rgba(229,62,62,0.1); }
+.live-search::placeholder { color: var(--text-dim); }
+.live-loading { text-align: center; padding: 40px 20px; color: var(--text-dim); font-size: 14px; }
+.live-spinner { font-size: 32px; display: block; margin-bottom: 12px; animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.live-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 10px; box-shadow: var(--shadow); }
+.live-card-header { padding: 12px 14px 8px; border-bottom: 1px solid var(--border); }
+.live-product-name { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.live-product-brand { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.live-price-row { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border); gap: 10px; cursor: pointer; transition: background 0.15s; }
+.live-price-row:last-child { border-bottom: none; }
+.live-price-row:active { background: var(--cream); }
+.live-price-row.best-live { background: var(--green-light); }
+.live-store-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); }
+.live-offer { font-size: 10px; color: var(--orange); margin-top: 2px; }
+.live-price-val { font-family: "Fraunces", serif; font-size: 15px; font-weight: 600; color: var(--text); }
+.live-price-val.cheapest { color: var(--green); }
+.live-save-btn { background: var(--green); color: white; border: none; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+.live-save-btn:active { opacity: 0.8; }
+.live-best-badge { background: var(--green); color: white; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
+.live-empty { text-align: center; padding: 40px 20px; color: var(--text-dim); }
+.live-count { font-size: 11px; color: var(--text-dim); padding: 8px 0 4px; }
+
 </style>
 </head>
 <body>
@@ -196,6 +227,7 @@ body { background: var(--cream); color: var(--text); font-family: 'DM Sans', san
         <div class="chip" onclick="setFilter('sams',this)">Sam's SZ</div>
         <div class="chip" onclick="setFilter('hkd',this)">HKD only</div>
         <div class="chip" onclick="setFilter('cny',this)">CNY only</div>
+        <div class="chip chip-live" onclick="setFilter('live',this)">🔴 Live HK</div>
       </div>
     </div>
   </div>
@@ -494,7 +526,9 @@ function render() {
     return;
   }
 
-  if (q.length > 0) {
+  if (activeFilter === 'live') {
+    renderLive(content);
+  } else if (q.length > 0) {
     renderComparison(filtered, q, content);
   } else {
     renderBrowse(filtered, content);
@@ -844,6 +878,169 @@ function addScannedItem(idx) {
           break;
         }
       }
+    }
+  }, 350);
+}
+
+
+// ══ LIVE HK PRICES (Consumer Council OPW API) ══
+var opwData = null;
+var opwLoading = false;
+var liveSearchTerm = '';
+var OPW_URL = 'https://online-price-watch.consumer.org.hk/opw/opendata/pricewatch.json';
+
+var STORE_NAMES = {
+  'WELLCOME': 'Wellcome',
+  'PARKNSHOP': 'PARKnSHOP',
+  'JASONS': 'Market Place by Jasons',
+  'WATSONS': 'Watsons',
+  'AEON': 'AEON',
+  'DCHFOOD': 'DCH Food Mart'
+};
+
+function renderLive(content) {
+  var html = '';
+  html += '<div class="live-banner">🔴 <div><strong>Live HK Prices</strong> — Consumer Council data, updated daily across 6 major retailers</div></div>';
+  html += '<div class="live-search-wrap"><input class="live-search" type="search" id="liveSearch" placeholder="Search 2,000+ products…" oninput="liveSearchInput()" autocorrect="off" spellcheck="false"></div>';
+
+  if (opwLoading) {
+    html += '<div class="live-loading"><span class="live-spinner">⏳</span>Loading live prices…</div>';
+    content.innerHTML = html;
+    return;
+  }
+
+  if (!opwData) {
+    html += '<div class="live-loading"><span>📡</span><br>Fetching live prices…</div>';
+    content.innerHTML = html;
+    fetchOPW(content);
+    return;
+  }
+
+  if (!liveSearchTerm || liveSearchTerm.length < 2) {
+    html += '<div class="live-empty">Type a product name to search<br><span style="font-size:11px;color:var(--text-dim);">' + opwData.length + ' products available</span></div>';
+    content.innerHTML = html;
+    setTimeout(function() { var el = document.getElementById('liveSearch'); if(el) el.focus(); }, 100);
+    return;
+  }
+
+  var q = liveSearchTerm.toLowerCase();
+  var results = opwData.filter(function(p) {
+    var name = (p.name && p.name.en) ? p.name.en.toLowerCase() : '';
+    var brand = (p.brand && p.brand.en) ? p.brand.en.toLowerCase() : '';
+    var cat = (p.cat1Name && p.cat1Name.en) ? p.cat1Name.en.toLowerCase() : '';
+    return name.includes(q) || brand.includes(q) || cat.includes(q);
+  });
+
+  html += '<div class="live-count">' + results.length + ' product' + (results.length !== 1 ? 's' : '') + ' found</div>';
+
+  if (results.length === 0) {
+    html += '<div class="live-empty">No products found for "' + liveSearchTerm + '"</div>';
+    content.innerHTML = html;
+    return;
+  }
+
+  // Cap at 30 results for performance
+  var shown = results.slice(0, 30);
+  shown.forEach(function(product) {
+    var prices = product.prices || [];
+    if (prices.length === 0) return;
+
+    // Sort prices ascending
+    var sorted = prices.slice().sort(function(a, b) { return parseFloat(a.price) - parseFloat(b.price); });
+    var cheapestPrice = parseFloat(sorted[0].price);
+
+    var productName = (product.name && product.name.en) ? product.name.en : 'Unknown';
+    var brandName = (product.brand && product.brand.en) ? product.brand.en : '';
+
+    html += '<div class="live-card">';
+    html += '<div class="live-card-header">';
+    html += '<div class="live-product-name">' + productName + '</div>';
+    if (brandName) html += '<div class="live-product-brand">' + brandName + ' · ' + (product.cat2Name && product.cat2Name.en ? product.cat2Name.en : '') + '</div>';
+    html += '</div>';
+
+    sorted.forEach(function(entry, i) {
+      var storeName = STORE_NAMES[entry.supermarketCode] || entry.supermarketCode;
+      var price = parseFloat(entry.price);
+      var isCheapest = i === 0 && sorted.length > 1;
+
+      // Find offer for this store
+      var offer = '';
+      if (product.offers) {
+        product.offers.forEach(function(o) {
+          if (o.supermarketCode === entry.supermarketCode && o.en) offer = o.en;
+        });
+      }
+
+      html += '<div class="live-price-row' + (isCheapest ? ' best-live' : '') + '">';
+      html += '<div><div class="live-store-name">' + storeName + (isCheapest ? '<span class="live-best-badge">Cheapest</span>' : '') + '</div>';
+      if (offer) html += '<div class="live-offer">🏷 ' + offer + '</div>';
+      html += '</div>';
+      html += '<div class="live-price-val' + (isCheapest ? ' cheapest' : '') + '">HK$' + price.toFixed(2) + '</div>';
+      html += '<button class="live-save-btn" onclick="saveLiveItem(' + JSON.stringify(productName).replace(/'/g,"&#39;") + ',' + JSON.stringify(storeName).replace(/'/g,"&#39;") + ',' + price + ')">+ Save</button>';
+      html += '</div>';
+    });
+
+    html += '</div>';
+  });
+
+  if (results.length > 30) {
+    html += '<div style="text-align:center;font-size:12px;color:var(--text-dim);padding:12px;">Showing first 30 of ' + results.length + ' results. Refine your search for more.</div>';
+  }
+
+  content.innerHTML = html;
+  var lsEl = document.getElementById('liveSearch');
+  if (lsEl) { lsEl.value = liveSearchTerm; lsEl.focus(); }
+}
+
+function fetchOPW(content) {
+  if (opwLoading) return;
+  opwLoading = true;
+  renderLive(content);
+
+  fetch(OPW_URL)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      opwData = data;
+      opwLoading = false;
+      renderLive(document.getElementById('content'));
+    })
+    .catch(function(err) {
+      opwLoading = false;
+      console.error('OPW fetch failed', err);
+      var content = document.getElementById('content');
+      content.innerHTML = '<div class="live-banner">🔴 <div><strong>Live HK Prices</strong></div></div><div class="live-empty">❌ Could not load live prices.<br><span style="font-size:11px;">Check your internet connection and try again.</span><br><br><button class="btn-save" style="width:auto;padding:10px 20px;" onclick="opwData=null;render()">Retry</button></div>';
+    });
+}
+
+function liveSearchInput() {
+  var el = document.getElementById('liveSearch');
+  if (el) liveSearchTerm = el.value.trim();
+  renderLive(document.getElementById('content'));
+}
+
+function saveLiveItem(productName, storeName, price) {
+  openModal();
+  setTimeout(function() {
+    document.getElementById('fItem').value = productName;
+    document.getElementById('fPrice').value = price.toFixed(2);
+    document.getElementById('fCurrency').value = 'HKD';
+    var sel = document.getElementById('fStore');
+    var opts = Array.from(sel.options);
+    var matched = false;
+    for (var i = 0; i < opts.length; i++) {
+      if (storeName.toLowerCase().includes(opts[i].value.toLowerCase()) || opts[i].value.toLowerCase().includes(storeName.toLowerCase().split(' ')[0])) {
+        sel.value = opts[i].value;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      // Add dynamic option
+      var opt = document.createElement('option');
+      opt.value = storeName;
+      opt.textContent = storeName;
+      sel.appendChild(opt);
+      sel.value = storeName;
     }
   }, 350);
 }
