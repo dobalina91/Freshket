@@ -172,6 +172,7 @@ body{background:var(--cream);color:var(--text);font-family:'DM Sans',sans-serif;
 .live-save-btn:active{opacity:0.8}
 .live-best-badge{background:var(--green);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:6px}
 .live-empty{text-align:center;padding:40px 20px;color:var(--text-dim)}
+.live-tag{font-size:9px;font-weight:700;background:#fff5f5;color:#e53e3e;border:1px solid #fed7d7;padding:1px 6px;border-radius:4px;margin-left:6px}
 .live-count{font-size:11px;color:var(--text-dim);padding:4px 0 8px}
 </style>
 </head>
@@ -420,6 +421,44 @@ function getFiltered() {
   });
 }
 
+
+// Convert OPW live items matching query into tracker-compatible format
+function getLiveMatches(query) {
+  if (!opwData || !query || query.length < 2) return [];
+  var q = query.toLowerCase();
+  var results = [];
+  opwData.forEach(function(prod) {
+    var name = (prod.name && prod.name.en) ? prod.name.en : '';
+    var brand = (prod.brand && prod.brand.en) ? prod.brand.en : '';
+    if (!name.toLowerCase().includes(q) && !brand.toLowerCase().includes(q)) return;
+    var prices = prod.prices || [];
+    prices.forEach(function(entry) {
+      var storeName = STORE_NAMES[entry.supermarketCode] || entry.supermarketCode;
+      var price = parseFloat(entry.price);
+      if (isNaN(price)) return;
+      // Extract qty from product name (e.g. "Butter 454g" -> "454g")
+      var qtyMatch = name.match(/([\d.]+\s*(?:g|kg|ml|l|pcs?|pc))/i);
+      var qty = qtyMatch ? qtyMatch[1] : '';
+      // Find offer
+      var offer = '';
+      if (prod.offers) prod.offers.forEach(function(o) {
+        if (o.supermarketCode === entry.supermarketCode && o.en) offer = o.en;
+      });
+      results.push({
+        item: name,
+        qty: qty,
+        currency: 'HKD',
+        price: price,
+        store: storeName,
+        _live: true,
+        _brand: brand,
+        _offer: offer
+      });
+    });
+  });
+  return results;
+}
+
 function render() {
   var q=document.getElementById('search').value.trim();
   var content=document.getElementById('content');
@@ -433,24 +472,38 @@ function render() {
 
   if (activeFilter==='live') { renderLive(content); return; }
 
+  // Auto-fetch OPW data in background so it's ready for searches
+  if (!opwData && !opwLoading) fetchOPW();
+
   var filtered=getFiltered();
-  if (!filtered.length) {
-    content.innerHTML='<div class="empty"><div class="empty-emoji">🥦</div><p>No items found.<br>Try a different search.</p></div>';
-    return;
+  if (q.length>0) {
+    // Merge live OPW results into comparison if available
+    var liveItems = getLiveMatches(q);
+    var merged = filtered.concat(liveItems);
+    if (!merged.length) {
+      content.innerHTML='<div class="empty"><div class="empty-emoji">🥦</div><p>No items found.<br>Try a different search.</p></div>';
+      return;
+    }
+    renderComparison(merged,q,content,liveItems.length);
+  } else {
+    if (!filtered.length) {
+      content.innerHTML='<div class="empty"><div class="empty-emoji">🥦</div><p>No items found.<br>Try a different search.</p></div>';
+      return;
+    }
+    renderBrowse(filtered,content);
   }
-  if (q.length>0) renderComparison(filtered,q,content);
-  else renderBrowse(filtered,content);
 }
 
 // ── Comparison ──
-function renderComparison(filtered,q,content) {
+function renderComparison(filtered,q,content,liveCount) {
   var groups={};
   filtered.forEach(function(it) {
     var k=it.item.toLowerCase().split(',')[0].trim();
     if (!groups[k]) groups[k]=[];
     groups[k].push(it);
   });
-  var html='<div class="results-meta">'+filtered.length+' result'+(filtered.length!==1?'s':'')+' for "<strong>'+q+'</strong>" &middot; ranked by HK$ value</div>';
+  var localCount = filtered.length - (liveCount||0);
+  var html='<div class="results-meta">'+localCount+' saved'+(liveCount?' + '+liveCount+' live':'')+' result'+(filtered.length!==1?'s':'')+' for "<strong>'+q+'</strong>" &middot; ranked by HK$ value</div>';
   Object.keys(groups).forEach(function(key) {
     var gi=groups[key]; if (!gi.length) return;
     var wp=gi.map(function(it) {
@@ -479,14 +532,18 @@ function renderComparison(filtered,q,content) {
         var lbl=isBest?'✓ Best value':(Math.round(((e.hkd-bestH)/bestH)*100)+'% more than best');
         bar='<div class="savings-bar-wrap"><div class="savings-bar"><div class="savings-bar-fill'+(pct<30?' expensive':'')+'" style="width:'+Math.max(pct,4)+'%"></div></div><div class="savings-label">'+lbl+'</div></div>';
       }
-      var idx=items.indexOf(it);
-      html+='<div><div class="comp-row" onclick="toggleCard('+idx+')">';
+      var isLive = it._live || false;
+      var idx = isLive ? -1 : items.indexOf(it);
+      html+='<div><div class="comp-row"'+(isLive?'':' onclick="toggleCard('+idx+')"')+'>';
       html+=rk+'<div class="store-dot dot-'+t+'"></div>';
-      html+='<div class="comp-main"><div class="comp-store">'+it.store+'</div><div class="comp-qty">'+it.item+' · '+(it.qty||'?')+'</div>';
+      html+='<div class="comp-main"><div class="comp-store">'+it.store+(isLive?'<span class="live-tag">LIVE</span>':'')+'</div><div class="comp-qty">'+it.item+(it._brand?' · '+it._brand:'')+' · '+(it.qty||'?')+'</div>';
+      if (it._offer) html+='<div class="comp-equiv" style="color:var(--orange);">🏷 '+it._offer+'</div>';
       if (equiv) html+='<div class="comp-equiv">'+equiv+'</div>';
       html+='</div><div class="comp-prices">'+(isBest?'<div class="best-badge">Best</div>':'')+
         '<div class="comp-unit-price'+(isBest?' best':'')+'">'+ppuStr+'</div>'+
-        '<div class="comp-total-price">'+sym+it.price.toFixed(2)+' · '+(it.qty||'?')+'</div></div></div>'+bar+'</div>';
+        '<div class="comp-total-price">'+sym+it.price.toFixed(2)+' · '+(it.qty||'?')+'</div></div>';
+      if (isLive) html+='<button class="live-save-btn" style="margin-left:8px;" data-name="'+it.item.replace(/"/g,'&amp;quot;')+'" data-store="'+it.store.replace(/"/g,'&amp;quot;')+'" data-price="'+it.price+'" onclick="event.stopPropagation();saveLiveItem(this)">+ Save</button>';
+      html+='</div>'+bar+'</div>';
     });
     html+='</div>';
   });
