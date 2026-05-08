@@ -655,7 +655,13 @@ function handleScanImage(event) {
         var txt=''; data.content.forEach(function(b){if(b.type==='text')txt+=b.text;});
         try { parsed=JSON.parse(txt.replace(/```json|```/g,'').trim()); } catch(err) { console.error(err); }
       }
-      if (!Array.isArray(parsed)||!parsed.length) { st.className='scan-status error'; st.textContent='❌ No items found. Try a clearer photo.'; return; }
+      if (!Array.isArray(parsed)||!parsed.length) {
+        st.className='scan-status error';
+        if (data.error) st.textContent='❌ Error: '+data.error;
+        else st.textContent='❌ No items found. Try a clearer photo.';
+        console.error('Scan response:', data);
+        return;
+      }
       st.className='scan-status'; st.textContent='✅ Found '+parsed.length+' item'+(parsed.length>1?'s':'');
       scanResults=parsed;
       var html='';
@@ -666,7 +672,10 @@ function handleScanImage(event) {
         html+='<div class="scan-item-detail">'+(it.qty||'?')+' · '+it.currency+(it.store?' · '+it.store:'')+'</div></div>';
         html+='<div class="scan-item-price">'+sym+parseFloat(it.price).toFixed(2)+'</div></div>';
       });
-      html+='<div class="scan-add-hint">Tap an item to add it to your tracker</div>';
+      html+='<div style="margin-top:10px;display:flex;gap:8px;">';
+      html+='<button class="btn-save" style="flex:1;font-size:13px;padding:10px;" onclick="addAllScanned()">+ Add All '+parsed.length+' Items</button>';
+      html+='</div>';
+      html+='<div class="scan-add-hint">Or tap individual items to add one by one</div>';
       document.getElementById('scanItems').innerHTML=html;
       document.getElementById('scanResults').style.display='block';
     })
@@ -676,17 +685,61 @@ function handleScanImage(event) {
 }
 function addScannedItem(idx) {
   var it=scanResults[idx]; if (!it) return;
-  closeScan(); openModal();
-  setTimeout(function() {
-    document.getElementById('fItem').value=it.item||'';
-    document.getElementById('fQty').value=it.qty||'';
-    document.getElementById('fCurrency').value=it.currency==='CNY'?'CNY':'HKD';
-    document.getElementById('fPrice').value=it.price?parseFloat(it.price).toFixed(2):'';
-    if (it.store) {
-      var sel=document.getElementById('fStore'), opts=Array.from(sel.options);
-      for (var i=0;i<opts.length;i++) { if (opts[i].value.toLowerCase().includes(it.store.toLowerCase().split(' ')[0])) { sel.value=opts[i].value; break; } }
+  // Add directly to tracker
+  var store = it.store || '';
+  var sel = document.getElementById('fStore');
+  var opts = sel ? Array.from(sel.options) : [];
+  var matchedStore = store;
+  for (var i=0; i<opts.length; i++) {
+    if (store && opts[i].value.toLowerCase().includes(store.toLowerCase().split(' ')[0])) {
+      matchedStore = opts[i].value; break;
     }
-  },350);
+  }
+  items.push({
+    item: it.item||'Unknown',
+    qty: it.qty||'',
+    currency: it.currency==='CNY'?'CNY':'HKD',
+    price: it.price ? parseFloat(it.price) : 0,
+    store: matchedStore,
+    id: Date.now()+idx
+  });
+  save(); render();
+  // Mark the card as added
+  var card = document.querySelectorAll('.scan-item-card')[idx];
+  if (card) {
+    card.style.opacity='0.5';
+    card.style.pointerEvents='none';
+    card.querySelector('.scan-item-price').textContent='✅ Added';
+  }
+}
+
+function addAllScanned() {
+  if (!scanResults.length) return;
+  var sel = document.getElementById('fStore');
+  var opts = sel ? Array.from(sel.options) : [];
+  scanResults.forEach(function(it, idx) {
+    var store = it.store || '';
+    var matchedStore = store;
+    for (var i=0; i<opts.length; i++) {
+      if (store && opts[i].value.toLowerCase().includes(store.toLowerCase().split(' ')[0])) {
+        matchedStore = opts[i].value; break;
+      }
+    }
+    items.push({
+      item: it.item||'Unknown',
+      qty: it.qty||'',
+      currency: it.currency==='CNY'?'CNY':'HKD',
+      price: it.price ? parseFloat(it.price) : 0,
+      store: matchedStore,
+      id: Date.now()+idx
+    });
+  });
+  save(); render();
+  var st = document.getElementById('scanStatus');
+  st.className='scan-status';
+  st.textContent='✅ Added all '+scanResults.length+' items to tracker!';
+  document.getElementById('scanResults').style.display='none';
+  setTimeout(function(){ closeScan(); }, 1200);
 }
 
 // ── LIVE HK ──
