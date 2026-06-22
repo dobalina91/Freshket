@@ -643,8 +643,34 @@ function handleScanImage(event) {
     document.getElementById('scanPreviewWrap').style.display='block';
     document.getElementById('scanResults').style.display='none';
     var st=document.getElementById('scanStatus');
-    st.className='scan-status loading'; st.textContent='⏳ Analysing image…';
-    var b64=full.split(',')[1], mime=file.type||'image/jpeg';
+    st.className='scan-status loading'; st.textContent='⏳ Compressing image…';
+
+    // Resize/compress via canvas before sending (receipts are tall, keep them readable)
+    var img=new Image();
+    img.onload=function() {
+      var maxDim=2000; // longest side cap — keeps small text legible
+      var w=img.width, h=img.height;
+      if (w>maxDim || h>maxDim) {
+        if (w>h) { h=Math.round(h*maxDim/w); w=maxDim; }
+        else { w=Math.round(w*maxDim/h); h=maxDim; }
+      }
+      var canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      var ctx=canvas.getContext('2d');
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+      ctx.drawImage(img,0,0,w,h);
+      var compressed=canvas.toDataURL('image/jpeg',0.8);
+      var b64=compressed.split(',')[1];
+      st.textContent='⏳ Analysing image…';
+      sendScan(b64,'image/jpeg',st);
+    };
+    img.onerror=function(){ st.className='scan-status error'; st.textContent='❌ Could not read image.'; };
+    img.src=full;
+  };
+  reader.readAsDataURL(file); event.target.value='';
+}
+
+function sendScan(b64,mime,st) {
     fetch('https://opw-proxy-red.vercel.app/api/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mimeType:mime})})
     .then(function(r){return r.json();})
     .then(function(data) {
@@ -680,8 +706,6 @@ function handleScanImage(event) {
       document.getElementById('scanResults').style.display='block';
     })
     .catch(function(err){console.error(err);st.className='scan-status error';st.textContent='❌ Error. Please try again.';});
-  };
-  reader.readAsDataURL(file); event.target.value='';
 }
 function addScannedItem(idx) {
   var it=scanResults[idx]; if (!it) return;
