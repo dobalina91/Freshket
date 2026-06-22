@@ -648,7 +648,7 @@ function handleScanImage(event) {
     // Resize/compress via canvas before sending (receipts are tall, keep them readable)
     var img=new Image();
     img.onload=function() {
-      var maxDim=2000; // longest side cap — keeps small text legible
+      var maxDim=2600; // higher cap so small receipt text stays legible
       var w=img.width, h=img.height;
       if (w>maxDim || h>maxDim) {
         if (w>h) { h=Math.round(h*maxDim/w); w=maxDim; }
@@ -659,7 +659,7 @@ function handleScanImage(event) {
       var ctx=canvas.getContext('2d');
       ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
       ctx.drawImage(img,0,0,w,h);
-      var compressed=canvas.toDataURL('image/jpeg',0.8);
+      var compressed=canvas.toDataURL('image/jpeg',0.92);
       var b64=compressed.split(',')[1];
       st.textContent='⏳ Analysing image…';
       sendScan(b64,'image/jpeg',st);
