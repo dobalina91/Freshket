@@ -272,7 +272,7 @@ body{background:var(--cream);color:var(--text);font-family:'DM Sans',sans-serif;
     <div class="form-group"><label>Item Name</label><input type="text" id="fItem" placeholder="e.g. Carrots"></div>
     <div class="form-row">
       <div class="form-group"><label>Quantity</label><input type="text" id="fQty" placeholder="e.g. 500g, 2pcs, 1kg"></div>
-      <div class="form-group"><label>Currency</label><select id="fCurrency"><option value="HKD">HKD</option><option value="CNY">CNY</option></select></div>
+      <div class="form-group"><label>Currency</label><select id="fCurrency"><option value="HKD">HKD</option><option value="CNY">CNY (¥)</option><option value="EUR">EUR (€)</option><option value="CAD">CAD (C$)</option></select></div>
     </div>
     <div class="form-group"><label>Price</label><input type="number" id="fPrice" placeholder="0.00" step="0.01" min="0"></div>
     <div class="form-group"><label>Store</label>
@@ -292,7 +292,22 @@ body{background:var(--cream);color:var(--text);font-family:'DM Sans',sans-serif;
 </div>
 
 <script>
-var CNY_TO_HKD = 1.07;
+var RATES_TO_HKD = { HKD:1, CNY:1.15, EUR:9.14, CAD:5.52 };
+var CURRENCY_SYMBOLS = { HKD:'HK$', CNY:'\u00a5', EUR:'\u20ac', CAD:'C$' };
+// Try to refresh rates live (falls back to hardcoded if offline)
+function refreshRates() {
+  fetch('https://api.frankfurter.app/latest?base=HKD&symbols=CNY,EUR,CAD')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if (d && d.rates) {
+        if (d.rates.CNY) RATES_TO_HKD.CNY = 1/d.rates.CNY;
+        if (d.rates.EUR) RATES_TO_HKD.EUR = 1/d.rates.EUR;
+        if (d.rates.CAD) RATES_TO_HKD.CAD = 1/d.rates.CAD;
+        if (typeof render==='function') render();
+      }
+    })
+    .catch(function(){ /* keep fallback rates */ });
+}
 var OPW_PROXY = 'https://opw-proxy-red.vercel.app/api/prices';
 
 var SEED = [
@@ -404,9 +419,9 @@ function ppu(item) {
   if (!p||p.amount===0) return null;
   return {ppu:item.price/p.amount, unit:p.unit};
 }
-function toHKD(price, cur) { return cur==='CNY' ? price*CNY_TO_HKD : price; }
+function toHKD(price, cur) { var r = RATES_TO_HKD[cur]; return r ? price*r : price; }
 function fmtPPU(v, unit, cur) {
-  var sym = cur==='HKD'?'HK$':'¥';
+  var sym = CURRENCY_SYMBOLS[cur] || cur+' ';
   return sym+(v<10?v.toFixed(2):v.toFixed(1))+'/'+unit;
 }
 
@@ -545,13 +560,13 @@ function renderComparison(filtered,q,content,liveCount) {
     html+='<div class="comparison-header"><div class="comparison-title">'+title+'</div><div class="comparison-subtitle">'+gi.length+' result'+(gi.length!==1?'s':'')+'</div></div>';
     html+='<div class="comparison-card">';
     sorted.forEach(function(e,i) {
-      var it=e.item, t=stype(it.store), sym=it.currency==='HKD'?'HK$':'¥';
+      var it=e.item, t=stype(it.store), sym=CURRENCY_SYMBOLS[it.currency]||it.currency+' ';
       var isBest=e.hkd!==null&&e.hkd===bestH&&wv.length>1;
       var rk='';
       if (e.hkd!==null) { rk=i===0?'<div class="rank-badge rank-1">🥇</div>':i===1?'<div class="rank-badge rank-2">2</div>':i===2?'<div class="rank-badge rank-3">3</div>':'<div class="rank-badge rank-other">'+(i+1)+'</div>'; }
       else rk='<div class="rank-badge rank-other">—</div>';
       var ppuStr='—', equiv='';
-      if (e.raw!==null&&e.unit) { ppuStr=fmtPPU(e.raw,e.unit,it.currency); if (it.currency==='CNY'&&e.hkd!==null) equiv='\u2248 HK$'+(e.hkd<10?e.hkd.toFixed(2):e.hkd.toFixed(1))+'/'+e.unit; }
+      if (e.raw!==null&&e.unit) { ppuStr=fmtPPU(e.raw,e.unit,it.currency); if (it.currency!=='HKD'&&e.hkd!==null) equiv='\u2248 HK$'+(e.hkd<10?e.hkd.toFixed(2):e.hkd.toFixed(1))+'/'+e.unit; }
       var bar='';
       if (e.hkd!==null&&bestH!==null&&worstH!==null&&worstH!==bestH) {
         var pct=Math.round(((worstH-e.hkd)/(worstH-bestH))*100);
@@ -588,7 +603,7 @@ function renderBrowse(filtered,content) {
     var si=byStore[store], t=stype(store), ic=icons[store]||(t==='hk'?'🇭🇰':'🇨🇳');
     html+='<div class="section-header"><div class="section-icon '+t+'">'+ic+'</div><div class="section-name">'+store+'</div><div class="section-count">'+si.length+'</div></div>';
     si.forEach(function(it) {
-      var idx=items.indexOf(it), sym=it.currency==='HKD'?'HK$':'¥', p=ppu(it), ps=p?fmtPPU(p.ppu,p.unit,it.currency):null;
+      var idx=items.indexOf(it), sym=CURRENCY_SYMBOLS[it.currency]||it.currency+' ', p=ppu(it), ps=p?fmtPPU(p.ppu,p.unit,it.currency):null;
       html+='<div class="item-card" data-type="'+t+'" data-idx="'+idx+'" onclick="toggleCard('+idx+')">';
       html+='<div class="card-top"><div class="item-name">'+it.item+'</div><div class="item-price-col"><div class="item-price">'+sym+it.price.toFixed(2)+'</div>'+(ps?'<div class="item-unit">'+ps+'</div>':'')+'</div></div>';
       html+='<div class="item-meta"><span class="store-chip '+t+'">'+store+'</span><span class="qty-text">'+(it.qty||'—')+'</span></div>';
@@ -716,7 +731,7 @@ function sendScan(b64,mime,st) {
       scanResults=parsed;
       var html='';
       parsed.forEach(function(it,i) {
-        var sym=it.currency==='HKD'?'HK$':'¥';
+        var sym=CURRENCY_SYMBOLS[it.currency]||it.currency+' ';
         html+='<div class="scan-item-card" onclick="addScannedItem('+i+')">';
         html+='<div class="scan-item-info"><div class="scan-item-name">'+(it.item||'')+'</div>';
         html+='<div class="scan-item-detail">'+(it.qty||'?')+' · '+it.currency+(it.store?' · '+it.store:'')+'</div></div>';
@@ -942,6 +957,7 @@ function importData() {
 
 document.getElementById('search').addEventListener('input', render);
 init();
+refreshRates();
 </script>
 </body>
 </html>
