@@ -280,7 +280,7 @@ body{background:var(--cream);color:var(--text);font-family:'DM Sans',sans-serif;
       <select id="fStore">
         <option>PARKnSHOP</option><option>Wellcome</option><option>Taste</option>
         <option>Sweet Decorations</option><option>DS Groceries</option>
-        <option>DON DON DONKI</option><option>Green (HK)</option>
+        <option>DON DON DONKI</option><option>Green (HK)</option><option>PrizeMart</option>
         <option>Costco Shenzhen</option><option>Sam's Club Shenzhen</option><option>Other</option>
       </select>
     </div>
@@ -596,9 +596,9 @@ function renderComparison(filtered,q,content,liveCount) {
 function renderBrowse(filtered,content) {
   var byStore={};
   filtered.forEach(function(it){var s=it.store||'Unknown';if(!byStore[s])byStore[s]=[];byStore[s].push(it);});
-  var order=['PARKnSHOP','Wellcome','Taste','Sweet Decorations','DS Groceries','DON DON DONKI','Green (HK)','Costco Shenzhen',"Sam's Club Shenzhen"];
+  var order=['PARKnSHOP','Wellcome','Taste','Sweet Decorations','DS Groceries','DON DON DONKI','Green (HK)','PrizeMart','Costco Shenzhen',"Sam's Club Shenzhen"];
   var stores=Object.keys(byStore).sort(function(a,b){var ai=order.indexOf(a),bi=order.indexOf(b);return(ai<0?99:ai)-(bi<0?99:bi);});
-  var icons={'PARKnSHOP':'🏪','Wellcome':'🛒','Taste':'🍽️','Sweet Decorations':'🧁','DS Groceries':'🥩','DON DON DONKI':'🎌','Green (HK)':'🌿','Costco Shenzhen':'🏬',"Sam's Club Shenzhen":'🏪'};
+  var icons={'PARKnSHOP':'🏪','Wellcome':'🛒','Taste':'🍽️','Sweet Decorations':'🧁','DS Groceries':'🥩','DON DON DONKI':'🎌','Green (HK)':'🌿','PrizeMart':'🏷️','Costco Shenzhen':'🏬',"Sam's Club Shenzhen":'🏪'};
   var html='<div class="results-meta">'+filtered.length+' item'+(filtered.length!==1?'s':'')+'</div>';
   stores.forEach(function(store) {
     var si=byStore[store], t=stype(store), ic=icons[store]||(t==='hk'?'🇭🇰':'🇨🇳');
